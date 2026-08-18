@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="FORGE">
+  <rect width="32" height="32" rx="7" fill="#0A0A0A" />
+  <!-- Barbell mark: gold sleeve caps, bone bar — the brand mark at favicon scale. -->
+  <g stroke="#ECD06F" stroke-linecap="round" fill="none">
+    <path d="M6.5 11.5v9M9.5 9.5v13M22.5 9.5v13M25.5 11.5v9" stroke-width="2.4" />
+    <path d="M9.5 16h13" stroke="#F5F3EE" stroke-width="2.2" />
+  </g>
+</svg>

@@ -1,0 +1,89 @@
+/* ============================================================================
+   FORGE — design tokens (03_Design_System.md §2, §3, §5)
+
+   Single source of truth for the visual language. Values are CSS custom
+   properties so the admin CMS can override brand colours at runtime by writing
+   to :root without a rebuild (SiteSettings keys theme.ink, theme.accent, …).
+   ============================================================================ */
+
+:root {
+  /* ---- Colour: "Dark Luxe Performance". Photography carries all chroma. ---- */
+  --ink: #0a0a0a;          /* page base — near-black, OLED-first */
+  --carbon: #121212;       /* raised surfaces, cards */
+  --steel: #1e1e1e;        /* borders, dividers, input backgrounds */
+  --smoke: #9ca3af;        /* secondary text */
+  --bone: #f5f3ee;         /* primary text — warm off-white, never pure #fff */
+  --accent: #ecd06f;       /* GOLD — actions, active states, key numbers ONLY */
+  --accent-hot: #e8442e;   /* signal red — errors, live, "almost full" */
+  --success: #3ecf8e;      /* confirmations, streaks */
+
+  /* Derived tints. Kept as tokens so nothing hardcodes an rgba() inline. */
+  --accent-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+  --accent-line: color-mix(in srgb, var(--accent) 38%, transparent);
+  --bone-dim: color-mix(in srgb, var(--bone) 62%, transparent);
+  --hairline: color-mix(in srgb, var(--bone) 12%, transparent);
+  --hairline-strong: color-mix(in srgb, var(--bone) 22%, transparent);
+  --scrim: linear-gradient(to bottom, rgb(0 0 0 / 0.2), rgb(0 0 0 / 0.75));
+
+  /* ---- Admin light surface (03 §2: same tokens, light base) ---- */
+  --paper: #fafaf8;
+  --paper-raised: #ffffff;
+  --paper-line: #e6e4de;
+  --paper-ink: #17171a;
+  --paper-smoke: #6b7280;
+
+  /* ---- Type: two-font system, condensed display + neutral workhorse ---- */
+  --font-display: "Clash Display", "Archivo Expanded", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --text-display-xl: clamp(3.5rem, 8vw, 7.5rem);
+  --text-display-l: clamp(2.5rem, 5vw, 4.5rem);
+  --text-display-m: clamp(1.75rem, 3vw, 2.75rem);
+  --text-body-l: 1.125rem;
+  --text-body: 1rem;
+  --text-caption: 0.8125rem;
+
+  --leading-display: 0.92;  /* 0.9–1.0 per the spec */
+  --leading-body: 1.6;
+  --tracking-display: -0.02em;
+  --tracking-caption: 0.08em;
+
+  /* ---- Geometry: ONE radius per role. Mixing radii is the template tell. ---- */
+  --radius-pill: 9999px;   /* buttons, badges, inputs, filter chips */
+  --radius-card: 1rem;     /* 16px — cards, tiles, media frames */
+  --radius-sheet: 1.5rem;  /* drawers, modals */
+
+  /* ---- Layout ---- */
+  --shell-max: 1440px;
+  --gutter: 1.5rem;         /* 24px */
+  --measure: 42rem;         /* ~680px constrained text block */
+  --section-y: clamp(5rem, 10vw, 9rem);   /* py-24 → py-36 */
+
+  /* ---- Motion: everything ≤400ms, ease-out ---- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 160ms;
+  --dur: 260ms;
+  --dur-slow: 400ms;
+
+  /* ---- Elevation. Dark UI reads depth from light, not from drop shadows. ---- */
+  --lift-1: 0 1px 0 0 var(--hairline) inset;
+  --lift-2: 0 18px 48px -24px rgb(0 0 0 / 0.9);
+  --glow-accent: 0 0 0 1px var(--accent-line), 0 12px 32px -16px color-mix(in srgb, var(--accent) 40%, transparent);
+
+  --z-header: 50;
+  --z-overlay: 80;
+  --z-toast: 90;
+
+  color-scheme: dark;
+}
+
+/* Fallback for browsers without color-mix(): flat rgba equivalents of the tints. */
+@supports not (color: color-mix(in srgb, red 50%, blue)) {
+  :root {
+    --accent-soft: rgb(236 208 111 / 0.14);
+    --accent-line: rgb(236 208 111 / 0.38);
+    --bone-dim: rgb(245 243 238 / 0.62);
+    --hairline: rgb(245 243 238 / 0.12);
+    --hairline-strong: rgb(245 243 238 / 0.22);
+  }
+}

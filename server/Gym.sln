@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gym.Api", "Gym.Api\Gym.Api.csproj", "{C7B4E02F-6DA1-4F76-8AD5-0A677430A90D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gym.Core", "Gym.Core\Gym.Core.csproj", "{40DE1631-5576-4225-894E-FA27D52C3CD8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gym.Infrastructure", "Gym.Infrastructure\Gym.Infrastructure.csproj", "{853263AD-6C6A-45BF-84BE-883CC55DF87D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C7B4E02F-6DA1-4F76-8AD5-0A677430A90D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7B4E02F-6DA1-4F76-8AD5-0A677430A90D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7B4E02F-6DA1-4F76-8AD5-0A677430A90D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7B4E02F-6DA1-4F76-8AD5-0A677430A90D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40DE1631-5576-4225-894E-FA27D52C3CD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40DE1631-5576-4225-894E-FA27D52C3CD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40DE1631-5576-4225-894E-FA27D52C3CD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40DE1631-5576-4225-894E-FA27D52C3CD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{853263AD-6C6A-45BF-84BE-883CC55DF87D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{853263AD-6C6A-45BF-84BE-883CC55DF87D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{853263AD-6C6A-45BF-84BE-883CC55DF87D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{853263AD-6C6A-45BF-84BE-883CC55DF87D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

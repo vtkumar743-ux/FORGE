@@ -1,0 +1,233 @@
+{
+  "$comment": [
+    "Build-time brand imagery for the public site. `npm run media` downloads every entry",
+    "into client/public/media at the stated size, so the paths seeded into CmsSections",
+    "resolve without a CDN and without checking binaries into the repo.",
+    "",
+    "Sources are Unsplash (free, commercial use, no attribution required — credited anyway).",
+    "The uniform CSS grade in 03 §4 is applied at render time by the .graded utility, so the",
+    "downloaded originals stay untouched and can be re-graded by changing one CSS rule.",
+    "",
+    "Entries with \"pending\": true are seeded in the CMS but not yet sourced. They belong to",
+    "the imagery pass in Phase 1 (public website), which needs the full trainer, class,",
+    "transformation, testimonial, blog and product sets."
+  ],
+  "provider": "unsplash",
+  "baseUrl": "https://images.unsplash.com",
+  "outputDir": "public/media",
+  "assets": [
+    {
+      "path": "hero/forge-hero-poster.jpg",
+      "id": "photo-1517963879433-6ad2b056d712",
+      "width": 3840,
+      "credit": "Unsplash",
+      "alt": "A lifter gripping a loaded barbell in a dark gym, warm light from the side"
+    },
+    {
+      "path": "og/forge-default.jpg",
+      "id": "photo-1517963879433-6ad2b056d712",
+      "width": 1200,
+      "height": 630,
+      "crop": true,
+      "credit": "Unsplash",
+      "alt": "FORGE — default social share image"
+    },
+    {
+      "path": "facility/coaching-floor.jpg",
+      "id": "photo-1758875569256-f37c438cac65",
+      "width": 2400,
+      "credit": "Unsplash",
+      "alt": "A coach watching a member lift, correcting position on the gym floor"
+    },
+    {
+      "path": "facility/chalk-hands.jpg",
+      "id": "photo-1526409499567-9f0af1fcb6d1",
+      "width": 2400,
+      "credit": "Unsplash",
+      "alt": "Chalked hands gripping a barbell at the start of a set"
+    },
+    {
+      "path": "facility/rack-detail.jpg",
+      "id": "photo-1558611848-73f7eb4001a1",
+      "width": 2400,
+      "credit": "Unsplash",
+      "alt": "Close detail of a loaded barbell resting in a rack"
+    },
+    {
+      "path": "facility/locker-corridor.jpg",
+      "id": "photo-1648235692910-947cb90ddd97",
+      "width": 2400,
+      "credit": "Unsplash",
+      "alt": "A dimly lit corridor leading to the changing rooms"
+    },
+    {
+      "path": "facility/trial-hero.jpg",
+      "id": "photo-1637430308606-86576d8fef3c",
+      "width": 2400,
+      "credit": "Unsplash",
+      "alt": "The training floor seen from the front desk, machines in a long row"
+    },
+    {
+      "path": "facility/strength-deck.jpg",
+      "id": "photo-1734630341082-0fec0e10126c",
+      "width": 2880,
+      "credit": "Unsplash",
+      "alt": "A row of dumbbells racked along the strength floor"
+    },
+    {
+      "path": "facility/wide-floor.jpg",
+      "id": "photo-1545612036-2872840642dc",
+      "width": 3840,
+      "credit": "Unsplash",
+      "alt": "Wide view of an empty training floor, equipment lit from above"
+    },
+    {
+      "path": "branches/koramangala-hero.jpg",
+      "id": "photo-1689877020200-403d8542d95d",
+      "width": 3200,
+      "credit": "Unsplash",
+      "alt": "Interior of the Koramangala training floor with machines and free weights"
+    },
+    {
+      "path": "branches/indiranagar-hero.jpg",
+      "id": "photo-1637870473618-8c9fa7d11f0a",
+      "width": 3200,
+      "credit": "Unsplash",
+      "alt": "The Indiranagar spin room, bikes in formation under low light"
+    },
+    {
+      "path": "branches/whitefield-hero.jpg",
+      "id": "photo-1674834727206-4bc272bfd8da",
+      "width": 3200,
+      "credit": "Unsplash",
+      "alt": "The Whitefield floor, equipment running the length of the room"
+    },
+    {
+      "path": "branches/index-hero.jpg",
+      "id": "photo-1590487988256-9ed24133863e",
+      "width": 3200,
+      "credit": "Unsplash",
+      "alt": "Gym equipment in monochrome, shot down the length of the floor"
+    },
+    {
+      "path": "classes/timetable-hero.jpg",
+      "id": "photo-1526506118085-60ce8714f8c5",
+      "width": 2880,
+      "credit": "Unsplash",
+      "alt": "A member mid-set during a conditioning class"
+    },
+    {
+      "path": "trainers/team-hero.jpg",
+      "id": "photo-1517837414457-37b44cea4818",
+      "width": 2880,
+      "credit": "Unsplash",
+      "alt": "A coach spotting a member through a heavy lift"
+    },
+    {
+      "path": "transformations/hero.jpg",
+      "id": "photo-1606657830879-00d70555b1b6",
+      "width": 2880,
+      "credit": "Unsplash",
+      "alt": "A lifter setting up over the bar, chalk dust in the light"
+    },
+
+    { "$group": "Trainer portraits — 3:4 per the trainer-card rule (03 §7). One per seeded coach slug." },
+    { "path": "trainers/karthik-reddy.jpg", "id": "photo-1707900285737-09a42c837118", "width": 1200, "height": 1600, "crop": true, "credit": "Unsplash", "alt": "Karthik Reddy, Head of Strength, on the training floor" },
+    { "path": "trainers/sneha-iyer.jpg", "id": "photo-1708011108776-45ad9e625269", "width": 1200, "height": 1600, "crop": true, "credit": "Unsplash", "alt": "Sneha Iyer, Conditioning Lead, on the gym floor" },
+    { "path": "trainers/imran-sheikh.jpg", "id": "photo-1737381508529-a110d717d5a7", "width": 1200, "height": 1600, "crop": true, "credit": "Unsplash", "alt": "Imran Sheikh, boxing coach, in the ring" },
+    { "path": "trainers/divya-nair.jpg", "id": "photo-1770026136765-2343c441b9cb", "width": 1200, "height": 1600, "crop": true, "credit": "Unsplash", "alt": "Divya Nair, movement and mobility coach, seated on a weight plate" },
+    { "path": "trainers/rohan-kulkarni.jpg", "id": "photo-1750698544726-8bc312ac1ffd", "width": 1200, "height": 1600, "crop": true, "credit": "Unsplash", "alt": "Rohan Kulkarni working through a dumbbell set on the strength floor" },
+    { "path": "trainers/aparna-menon.jpg", "id": "photo-1776267340901-232b470bc42f", "width": 1200, "height": 1600, "crop": true, "credit": "Unsplash", "alt": "Aparna Menon, yoga teacher, seated on the studio floor" },
+    { "path": "trainers/bharath-gowda.jpg", "id": "photo-1614367674345-f414b2be3e5b", "width": 1200, "height": 1600, "crop": true, "credit": "Unsplash", "alt": "Bharath Gowda, powerlifting coach, on the equipment floor" },
+    { "path": "trainers/priya-deshpande.jpg", "id": "photo-1633245691422-94f41bab9af1", "width": 1200, "height": 1600, "crop": true, "credit": "Unsplash", "alt": "Priya Deshpande, nutrition and body composition" },
+
+    { "$group": "Facility detail — the amenity bento and the annotated floor plans." },
+    { "path": "facility/ice-bath.jpg", "id": "photo-1681980016814-0bac16721969", "width": 2000, "credit": "Unsplash", "alt": "A member in the ice bath, four-minute protocol" },
+    { "path": "facility/spin-room.jpg", "id": "photo-1517960413843-0aee8e2b3285", "width": 2000, "credit": "Unsplash", "alt": "The spin studio lit low, bikes in formation" },
+    { "path": "facility/turf-lane.jpg", "id": "photo-1517637382994-f02da38c6728", "width": 2000, "credit": "Unsplash", "alt": "The indoor turf lane with a loaded sled at one end" },
+    { "path": "facility/combat-zone.jpg", "id": "photo-1583454110551-21f2fa2afe61", "width": 2000, "credit": "Unsplash", "alt": "Heavy bags hanging in the combat zone" },
+    { "path": "facility/inbody.jpg", "id": "photo-1571902943202-507ec2618e8f", "width": 2000, "credit": "Unsplash", "alt": "The body-composition scanner beside the consultation desk" },
+    { "path": "facility/recovery-suite.jpg", "id": "photo-1540497077202-7c8a3999166f", "width": 2000, "credit": "Unsplash", "alt": "The recovery suite — sauna door and compression chairs" },
+    { "path": "facility/pt-session.jpg", "id": "photo-1549060279-7e168fcee0c2", "width": 2000, "credit": "Unsplash", "alt": "A coach and member reviewing a lift beside a rack" },
+    { "path": "facility/rehab.jpg", "id": "photo-1571019614242-c5c5dee9f50b", "width": 2000, "credit": "Unsplash", "alt": "The physio-led rehab room with banded equipment" },
+    { "path": "facility/kor-platforms.jpg", "id": "photo-1534438327276-14e5300c3a48", "width": 2400, "credit": "Unsplash", "alt": "Four lifting platforms in a row at Koramangala" },
+    { "path": "facility/ind-studio.jpg", "id": "photo-1518611012118-696072aa579a", "width": 2400, "credit": "Unsplash", "alt": "The glass-walled studio at Indiranagar, mats laid out" },
+    { "path": "facility/whf-floor.jpg", "id": "photo-1517838277536-f5f99be501cd", "width": 2400, "credit": "Unsplash", "alt": "The Whitefield strength floor, platforms along one wall" },
+    { "path": "facility/koramangala-floorplan.jpg", "id": "photo-1571019613454-1cb2f99b2d8b", "width": 2400, "credit": "Unsplash", "alt": "Wide interior of the Koramangala floor with the equipment zones visible" },
+    { "path": "facility/indiranagar-floorplan.jpg", "id": "photo-1581009146145-b5ef050c2e1e", "width": 2400, "credit": "Unsplash", "alt": "Wide interior of the Indiranagar floor with the studios visible" },
+    { "path": "facility/whitefield-floorplan.jpg", "id": "photo-1546483875-ad9014c88eba", "width": 2400, "credit": "Unsplash", "alt": "Wide interior of the Whitefield floor with the turf lane visible" },
+
+    { "$group": "Class covers — one per format slug, 16:10 for the rail card." },
+    { "path": "classes/strength-foundations.jpg", "id": "photo-1517344884509-a0c97ec11bcc", "width": 1600, "height": 1000, "crop": true, "credit": "Unsplash", "alt": "A coached squat under a loaded bar in Strength Foundations" },
+    { "path": "classes/olympic-lifting-lab.jpg", "id": "photo-1552674605-db6ffd4facb5", "width": 1600, "height": 1000, "crop": true, "credit": "Unsplash", "alt": "A lifter catching a clean on the platform" },
+    { "path": "classes/hiit-45.jpg", "id": "photo-1591258370814-01609b341790", "width": 1600, "height": 1000, "crop": true, "credit": "Unsplash", "alt": "Rowers and kettlebells mid-interval in HIIT 45" },
+    { "path": "classes/spin-room.jpg", "id": "photo-1574680096145-d05b474e2155", "width": 1600, "height": 1000, "crop": true, "credit": "Unsplash", "alt": "A spin class in progress under low light" },
+    { "path": "classes/boxing-fundamentals.jpg", "id": "photo-1599058917765-a780eda07a3e", "width": 1600, "height": 1000, "crop": true, "credit": "Unsplash", "alt": "Pad rounds with a coach in Boxing Fundamentals" },
+    { "path": "classes/mobility-recovery.jpg", "id": "photo-1616803689943-5601631c7fec", "width": 1600, "height": 1000, "crop": true, "credit": "Unsplash", "alt": "Loaded stretching and banded joint work" },
+    { "path": "classes/yoga-flow.jpg", "id": "photo-1532384748853-8f54a8f476e2", "width": 1600, "height": 1000, "crop": true, "credit": "Unsplash", "alt": "A vinyasa sequence in the studio" },
+    { "path": "classes/crosstrain-circuit.jpg", "id": "photo-1519505907962-0a6cb0167c73", "width": 1600, "height": 1000, "crop": true, "credit": "Unsplash", "alt": "Barbell and gymnastics work in the CrossTrain Circuit" },
+    { "path": "classes/core-conditioning.jpg", "id": "photo-1506126613408-eca07ce68773", "width": 1600, "height": 1000, "crop": true, "credit": "Unsplash", "alt": "Trunk work and loaded carries in Core & Conditioning" },
+    { "path": "classes/powerlifting-club.jpg", "id": "photo-1544367567-0f2fcb009e0b", "width": 1600, "height": 1000, "crop": true, "credit": "Unsplash", "alt": "A heavy squat under the bar in Powerlifting Club" },
+
+    { "$group": "Testimonial avatars — square crops, one per author slug." },
+    { "path": "testimonials/nandini-rao.jpg", "id": "photo-1645107914072-6f16b732f224", "width": 400, "height": 400, "crop": true, "credit": "Unsplash", "alt": "Nandini Rao" },
+    { "path": "testimonials/sathish-kumar.jpg", "id": "photo-1605857840732-188f2f08cb31", "width": 400, "height": 400, "crop": true, "credit": "Unsplash", "alt": "Sathish Kumar" },
+    { "path": "testimonials/aisha-fernandes.jpg", "id": "photo-1547212371-eb5e6a4b590c", "width": 400, "height": 400, "crop": true, "credit": "Unsplash", "alt": "Aisha Fernandes" },
+    { "path": "testimonials/vikram-malhotra.jpg", "id": "photo-1662809556629-4068241e8cd1", "width": 400, "height": 400, "crop": true, "credit": "Unsplash", "alt": "Vikram Malhotra" },
+    { "path": "testimonials/keerthi-prabhu.jpg", "id": "photo-1732888419806-9403823b5c34", "width": 400, "height": 400, "crop": true, "credit": "Unsplash", "alt": "Keerthi Prabhu" },
+    { "path": "testimonials/rahul-chauhan.jpg", "id": "photo-1661112952418-84a766daacf3", "width": 400, "height": 400, "crop": true, "credit": "Unsplash", "alt": "Rahul Chauhan" },
+    { "path": "testimonials/meera-krishnan.jpg", "id": "photo-1710778044102-56a3a6b69a1b", "width": 400, "height": 400, "crop": true, "credit": "Unsplash", "alt": "Meera Krishnan" },
+    { "path": "testimonials/faisal-ansari.jpg", "id": "photo-1600896903045-3d373014baa3", "width": 400, "height": 400, "crop": true, "credit": "Unsplash", "alt": "Faisal Ansari" },
+
+    { "$group": "Transformation pairs — PLACEHOLDER STOCK. Must be replaced with the client's own consented member photographs before launch." },
+    { "path": "transformations/arjun-m-before.jpg", "id": "photo-1524863479829-916d8e77f114", "width": 900, "height": 1200, "crop": true, "credit": "Unsplash", "alt": "Arjun M. at the start of the block" },
+    { "path": "transformations/arjun-m-after.jpg", "id": "photo-1601422407692-ec4eeec1d9b3", "width": 900, "height": 1200, "crop": true, "credit": "Unsplash", "alt": "Arjun M. after twenty-four weeks" },
+    { "path": "transformations/divya-s-before.jpg", "id": "photo-1593476087123-36d1de271f08", "width": 900, "height": 1200, "crop": true, "credit": "Unsplash", "alt": "Divya S. at the start of the block" },
+    { "path": "transformations/divya-s-after.jpg", "id": "photo-1541534741688-6078c6bfb5c5", "width": 900, "height": 1200, "crop": true, "credit": "Unsplash", "alt": "Divya S. after twenty weeks" },
+    { "path": "transformations/sandeep-k-before.jpg", "id": "photo-1522898467493-49726bf28798", "width": 900, "height": 1200, "crop": true, "credit": "Unsplash", "alt": "Sandeep K. at the start of the block" },
+    { "path": "transformations/sandeep-k-after.jpg", "id": "photo-1571731956672-f2b94d7dd0cb", "width": 900, "height": 1200, "crop": true, "credit": "Unsplash", "alt": "Sandeep K. after thirty-six weeks" },
+    { "path": "transformations/anjali-r-before.jpg", "id": "photo-1518459031867-a89b944bffe4", "width": 900, "height": 1200, "crop": true, "credit": "Unsplash", "alt": "Anjali R. at the start of the block" },
+    { "path": "transformations/anjali-r-after.jpg", "id": "photo-1588286840104-8957b019727f", "width": 900, "height": 1200, "crop": true, "credit": "Unsplash", "alt": "Anjali R. after sixteen weeks" },
+    { "path": "transformations/praveen-t-before.jpg", "id": "photo-1611672585731-fa10603fb9e0", "width": 900, "height": 1200, "crop": true, "credit": "Unsplash", "alt": "Praveen T. at the start of the block" },
+    { "path": "transformations/praveen-t-after.jpg", "id": "photo-1600881333168-2ef49b341f30", "width": 900, "height": 1200, "crop": true, "credit": "Unsplash", "alt": "Praveen T. after twenty-eight weeks" },
+
+    { "$group": "Journal covers — one per post slug." },
+    { "path": "blog/how-many-days-a-week-should-you-actually-train.jpg", "id": "photo-1573497019940-1c28c88b4f3e", "width": 2000, "credit": "Unsplash", "alt": "A training week planned out on a whiteboard" },
+    { "path": "blog/a-week-of-indian-meals-at-140-g-of-protein.jpg", "id": "photo-1490645935967-10de6ba17061", "width": 2000, "credit": "Unsplash", "alt": "A plated meal built around protein" },
+    { "path": "blog/why-we-put-an-occupancy-meter-on-the-website.jpg", "id": "photo-1595152452543-e5fc28ebc2b8", "width": 2000, "credit": "Unsplash", "alt": "A busy gym floor at peak hour" },
+    { "path": "blog/your-first-month-at-forge-session-by-session.jpg", "id": "photo-1579758629938-03607ccdbaba", "width": 2000, "credit": "Unsplash", "alt": "A new member being walked through the floor by a coach" },
+    { "path": "blog/ice-baths-what-the-evidence-actually-supports.jpg", "id": "photo-1623874514711-0f321325f318", "width": 2000, "credit": "Unsplash", "alt": "Cold-water immersion after a session" },
+
+    { "$group": "Per-page social images — 1200×630 crops of each page's own hero (Module 1.12)." },
+    { "path": "og/home.jpg", "id": "photo-1517963879433-6ad2b056d712", "width": 1200, "height": 630, "crop": true, "credit": "Unsplash", "alt": "FORGE — home" },
+    { "path": "og/classes.jpg", "id": "photo-1526506118085-60ce8714f8c5", "width": 1200, "height": 630, "crop": true, "credit": "Unsplash", "alt": "FORGE — classes and timetable" },
+    { "path": "og/trainers.jpg", "id": "photo-1517837414457-37b44cea4818", "width": 1200, "height": 630, "crop": true, "credit": "Unsplash", "alt": "FORGE — the coaches" },
+    { "path": "og/plans.jpg", "id": "photo-1558611848-73f7eb4001a1", "width": 1200, "height": 630, "crop": true, "credit": "Unsplash", "alt": "FORGE — plans and pricing" },
+    { "path": "og/transformations.jpg", "id": "photo-1606657830879-00d70555b1b6", "width": 1200, "height": 630, "crop": true, "credit": "Unsplash", "alt": "FORGE — member transformations" },
+    { "path": "og/journal.jpg", "id": "photo-1573497019940-1c28c88b4f3e", "width": 1200, "height": 630, "crop": true, "credit": "Unsplash", "alt": "FORGE — the journal" },
+    { "path": "og/branches.jpg", "id": "photo-1590487988256-9ed24133863e", "width": 1200, "height": 630, "crop": true, "credit": "Unsplash", "alt": "FORGE — our branches" },
+    { "path": "og/free-trial.jpg", "id": "photo-1637430308606-86576d8fef3c", "width": 1200, "height": 630, "crop": true, "credit": "Unsplash", "alt": "FORGE — book a free trial" },
+    { "path": "og/contact.jpg", "id": "photo-1648235692910-947cb90ddd97", "width": 1200, "height": 630, "crop": true, "credit": "Unsplash", "alt": "FORGE — contact" },
+    { "path": "og/faq.jpg", "id": "photo-1526409499567-9f0af1fcb6d1", "width": 1200, "height": 630, "crop": true, "credit": "Unsplash", "alt": "FORGE — questions" },
+    { "path": "og/tools.jpg", "id": "photo-1571902943202-507ec2618e8f", "width": 1200, "height": 630, "crop": true, "credit": "Unsplash", "alt": "FORGE — calculators" },
+    { "path": "og/branches-koramangala.jpg", "id": "photo-1689877020200-403d8542d95d", "width": 1200, "height": 630, "crop": true, "credit": "Unsplash", "alt": "FORGE Koramangala" },
+    { "path": "og/branches-indiranagar.jpg", "id": "photo-1637870473618-8c9fa7d11f0a", "width": 1200, "height": 630, "crop": true, "credit": "Unsplash", "alt": "FORGE Indiranagar" },
+    { "path": "og/branches-whitefield.jpg", "id": "photo-1674834727206-4bc272bfd8da", "width": 1200, "height": 630, "crop": true, "credit": "Unsplash", "alt": "FORGE Whitefield" }
+  ],
+  "pending": {
+    "$comment": [
+      "The Phase 1 imagery pass sourced every still the public site references: 8 trainer",
+      "portraits, 14 facility shots, 10 class covers, 8 testimonial avatars, 5 journal covers,",
+      "5 transformation pairs and 14 per-page OG crops. What remains below is either a client",
+      "deliverable or belongs to a later module."
+    ],
+    "hero/forge-hero.mp4": "STILL PENDING. 6–10s muted loop, Pexels Videos (search: weightlifting slow motion), trimmed to 2–4 MB. Needs ffmpeg to trim, strip audio and produce the WebM sibling — not installed here, and an untrimmed 4K clip with audio would breach 03 §4. The hero renders its poster meanwhile, which is the designed fallback, not a placeholder.",
+    "hero/forge-hero.webm": "WebM sibling of the same loop.",
+    "transformations/*.jpg": "REPLACE BEFORE LAUNCH. Currently stock stand-ins so the gallery renders. These must be the client's own consented member photographs — the section publishes named people with weights and timelines.",
+    "trainers/*.jpg": "REPLACE BEFORE LAUNCH. Stock coaches, chosen dark and on-palette with no competitor branding, but they are not the client's actual staff.",
+    "app/forge-app-home.png": "Optional. Absent by design: the QR section draws the member-app home screen from live tokens instead, which stays sharp and cannot drift out of date with the palette. Drop a real capture here and it takes over automatically.",
+    "brand/forge-wordmark.svg": "Optional. Client-supplied once the brand name is final. Nothing references it yet — the header and footer set the wordmark in Clash Display.",
+    "exercises/*.jpg": "Module 3 (member portal) — thumbnails for the 35-exercise library.",
+    "shop/*.jpg": "Module 2 (POS) — product shots for the retail catalogue."
+  }
+}

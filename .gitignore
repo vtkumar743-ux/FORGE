@@ -1,0 +1,34 @@
+# ---- Node / client ----
+node_modules/
+client/dist/
+client/.vite/
+*.local
+
+# Brand imagery is fetched with `npm run media`, not committed.
+client/public/media/
+
+# ---- .NET / server ----
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+.vs/
+
+# Serilog rolling files
+server/Gym.Api/logs/
+
+# Owner-uploaded media is runtime data, not source.
+server/Gym.Api/wwwroot/media/uploads/
+
+# ---- Secrets ----
+# appsettings.Development.json currently carries only sandbox/dev placeholders. Move real
+# Razorpay and Anthropic keys into user secrets (dotnet user-secrets) before going live.
+**/appsettings.Production.json
+*.pfx
+.env
+.env.*
+
+# ---- OS ----
+Thumbs.db
+Desktop.ini
+.DS_Store

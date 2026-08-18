@@ -1,0 +1,26 @@
+# Line endings are decided by the repository, not by each developer's autocrlf setting.
+# Everything is stored as LF; Windows tooling reads it fine and diffs stay clean when the
+# project is later touched from macOS, Linux or CI.
+* text=auto eol=lf
+
+# Windows-only scripts must keep CRLF or cmd.exe mis-parses them.
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+*.ps1  text eol=crlf
+
+# Binary — never diff, never convert.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.ico  binary
+*.mp4  binary
+*.webm binary
+*.woff binary
+*.woff2 binary
+*.pdf  binary
+
+# Generated: collapse it in pull requests so a lockfile bump does not bury the real change.
+client/package-lock.json                                   linguist-generated=true -diff
+server/Gym.Infrastructure/Persistence/Migrations/**        linguist-generated=true -diff

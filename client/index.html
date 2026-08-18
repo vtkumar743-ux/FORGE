@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Paint the brand base before the bundle lands so there is never a white flash. -->
+    <meta name="theme-color" content="#0A0A0A" />
+    <style>
+      html { background-color: #0a0a0a; }
+    </style>
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!--
+      Two-font system (03 §3). Clash Display ships a genuine variable face with a
+      200–700 weight axis, which is what the kinetic headline animates across;
+      the static instances are the fallback when the variable file is unavailable.
+    -->
+    <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700,variable&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+    />
+
+    <!-- Real per-page values are injected from the CMS at runtime; these are the fallbacks. -->
+    <title>FORGE — Strength, built in Bengaluru</title>
+    <meta
+      name="description"
+      content="Three strength-first gyms in Bengaluru — Koramangala, Indiranagar, Whitefield. Eleiko platforms, coached classes, live floor occupancy. Book a free trial."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="FORGE" />
+    <meta property="og:title" content="FORGE — Strength, built in Bengaluru" />
+    <meta property="og:image" content="/media/og/forge-default.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      FORGE needs JavaScript to run. Call the Koramangala desk on +91 80 4172 9500 and we will
+      book you in over the phone.
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
