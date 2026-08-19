@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
-import { useOccupancy, useSiteSettings } from '@/lib/cms'
-import { cn } from '@/lib/utils'
+import { useLiveOccupancyFeed, useSiteSettings } from '@/lib/cms'
+import { cn, whatsappLink } from '@/lib/utils'
 import { useAbsentees, useAttendanceActions, useAttendanceToday, useHeatmap } from '../lib/admin-api'
 import { describeErrorText, formatIsoDate, formatIstTime, istToday } from '../lib/format'
 import { checkInSourceNames, weekdayNames } from '../lib/types'
@@ -26,7 +26,8 @@ import {
 export function AttendancePage() {
   const toast = useToast()
   const { data: settings } = useSiteSettings()
-  const { data: occupancy } = useOccupancy()
+  // The admin watches the whole network on one subscription (Module 4.1).
+  const { occupancy } = useLiveOccupancyFeed('network')
   const actions = useAttendanceActions()
 
   const [branchId, setBranchId] = useState<number | undefined>()
@@ -325,7 +326,7 @@ export function AttendancePage() {
               align: 'right',
               cell: (row) => (
                 <a
-                  href={`https://wa.me/91${row.phone}`}
+                  href={whatsappLink(row.phone)}
                   target="_blank"
                   rel="noreferrer noopener"
                   className="inline-flex size-8 items-center justify-center rounded-full border border-[var(--hairline-strong)] text-smoke transition-colors hover:border-success/50 hover:text-success"

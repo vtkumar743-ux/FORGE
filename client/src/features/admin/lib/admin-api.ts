@@ -28,6 +28,7 @@ import type {
   PlanRow,
   Quote,
   RoomRow,
+  FreezeRequestRow,
   RosterEntry,
   ScheduleRow,
   SubscriptionRow,
@@ -64,6 +65,7 @@ export const adminKeys = {
   invoices: (params: unknown) => ['admin', 'billing', 'invoices', params] as const,
   invoice: (id: number) => ['admin', 'billing', 'invoice', id] as const,
   collections: (branchId?: number) => ['admin', 'billing', 'collections', branchId ?? null] as const,
+  freezeRequests: (memberId?: number) => ['admin', 'billing', 'freeze-requests', memberId ?? null] as const,
   quote: (params: unknown) => ['admin', 'billing', 'quote', params] as const,
 
   formats: ['admin', 'scheduling', 'formats'] as const,
@@ -905,5 +907,41 @@ export function useTrainerOptions(branchId?: number): UseQueryResult<TrainerOpti
     queryKey: [...adminKeys.trainers, branchId ?? null],
     queryFn: () => get<TrainerOption[]>('/admin/scheduling/trainers', { branchId }),
     staleTime: 10 * 60 * 1000,
+  })
+}
+
+/* ---------------------------------------------------------------- freeze requests */
+
+/**
+ * Freeze asks raised from the member portal. Approving one runs the same
+ * SubscriptionService.FreezeAsync the desk's own freeze button runs, so the plan's
+ * allowance and the end-date arithmetic cannot diverge between the two routes in.
+ */
+export function useFreezeRequests(memberId?: number, pendingOnly = true) {
+  return useQuery({
+    queryKey: adminKeys.freezeRequests(memberId),
+    queryFn: async () =>
+      (
+        await api.get<FreezeRequestRow[]>('/admin/billing/freeze-requests', {
+          params: { memberId, pendingOnly },
+        })
+      ).data,
+    staleTime: 60_000,
+  })
+}
+
+export function useDecideFreeze() {
+  const client = useQueryClient()
+  return useMutation({
+    mutationFn: (input: { id: number; approve: boolean; note?: string }) =>
+      api.post(`/admin/billing/freeze-requests/${input.id}/decide`, {
+        approve: input.approve,
+        note: input.note,
+      }),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ['admin', 'billing', 'freeze-requests'] })
+      void client.invalidateQueries({ queryKey: ['admin', 'member'] })
+      void client.invalidateQueries({ queryKey: ['admin', 'dashboard'] })
+    },
   })
 }

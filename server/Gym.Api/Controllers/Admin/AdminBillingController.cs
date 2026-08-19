@@ -376,7 +376,7 @@ public class AdminBillingController : ControllerBase
     }
 
     [HttpPost("subscriptions/{id:int}/freeze")]
-    public async Task<IActionResult> Freeze(int id, FreezeRequest request, CancellationToken ct)
+    public async Task<IActionResult> Freeze(int id, FreezeSubscriptionRequest request, CancellationToken ct)
     {
         try
         {
@@ -406,6 +406,91 @@ public class AdminBillingController : ControllerBase
     {
         var subscription = await _subscriptions.CancelAsync(id, request.Reason, User.Identity?.Name, ct);
         return Ok(new { subscription.Id, subscription.Status });
+    }
+
+    // ================================================================== freeze requests
+
+    /// <summary>
+    /// Freeze asks coming out of the member portal. The desk decides; the freeze itself still
+    /// runs through <see cref="SubscriptionService.FreezeAsync"/>, so the plan's allowance and
+    /// the end-date arithmetic are the same whether the member asked or the desk just did it.
+    /// </summary>
+    [HttpGet("freeze-requests")]
+    [ProducesResponseType(typeof(IReadOnlyList<PortalFreezeRequestRow>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<PortalFreezeRequestRow>>> FreezeRequests(
+        [FromQuery] int? memberId, [FromQuery] bool pendingOnly = true, CancellationToken ct = default)
+    {
+        var query = _db.FreezeRequests
+            .AsNoTracking()
+            .Include(f => f.Member)
+            .Include(f => f.Subscription).ThenInclude(s => s.Plan)
+            .AsQueryable();
+
+        if (memberId is { } id) query = query.Where(f => f.MemberId == id);
+        if (pendingOnly) query = query.Where(f => f.Status == FreezeRequestStatus.Pending);
+
+        var rows = await query
+            .OrderBy(f => f.Status == FreezeRequestStatus.Pending ? 0 : 1)
+            .ThenByDescending(f => f.RequestedAtUtc)
+            .Take(200)
+            .ToListAsync(ct);
+
+        return Ok(rows.Select(Portal.PortalMembershipController.DescribeFreeze).ToList());
+    }
+
+    [HttpPost("freeze-requests/{id:int}/decide")]
+    [ProducesResponseType(typeof(PortalFreezeRequestRow), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PortalFreezeRequestRow>> DecideFreeze(
+        int id, DecideFreezeRequest request, CancellationToken ct)
+    {
+        var freeze = await _db.FreezeRequests
+            .Include(f => f.Member)
+            .Include(f => f.Subscription).ThenInclude(s => s.Plan)
+            .FirstOrDefaultAsync(f => f.Id == id, ct);
+        if (freeze is null) return NotFound();
+        if (freeze.Status != FreezeRequestStatus.Pending)
+            return Problem("That request has already been answered.", statusCode: StatusCodes.Status400BadRequest);
+
+        var actor = User.Identity?.Name;
+
+        if (request.Approve)
+        {
+            try
+            {
+                await _subscriptions.FreezeAsync(
+                    freeze.SubscriptionId, freeze.RequestedFrom, freeze.RequestedTo, actor, ct);
+            }
+            catch (InvalidOperationException ex)
+            {
+                // The allowance changed since they asked — say so rather than half-applying it.
+                return Problem(ex.Message, statusCode: StatusCodes.Status400BadRequest);
+            }
+        }
+
+        freeze.Status = request.Approve ? FreezeRequestStatus.Approved : FreezeRequestStatus.Declined;
+        freeze.DecidedAtUtc = _clock.UtcNow;
+        freeze.DecidedBy = actor;
+        freeze.DecisionNote = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim();
+        await _db.SaveChangesAsync(ct);
+
+        await _notifier.SendAsync(new OutboundMessage
+        {
+            MemberId = freeze.MemberId,
+            Kind = NotificationKind.General,
+            Title = request.Approve ? "Your freeze is on" : "Freeze request declined",
+            Body = request.Approve
+                ? $"Frozen from {freeze.RequestedFrom:dd MMM yyyy} to {freeze.RequestedTo:dd MMM yyyy}. " +
+                  "Those days are added to the end of your membership."
+                : freeze.DecisionNote ?? "Call the desk and we will work something out.",
+            ActionUrl = "/portal/membership",
+            TemplateKey = request.Approve ? "freeze.approved" : "freeze.declined",
+            Channels = new[] { NotificationChannel.InApp, NotificationChannel.WhatsApp }
+        }, ct);
+
+        _log.LogInformation("Freeze request {Id} {Decision} for {Member}",
+            freeze.Id, request.Approve ? "approved" : "declined", freeze.Member.MemberCode);
+
+        return Ok(Portal.PortalMembershipController.DescribeFreeze(freeze));
     }
 
     // ================================================================== invoices

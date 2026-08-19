@@ -164,7 +164,7 @@ export function PricingTableSection({ content }: { content: PricingTableContent 
 
         {content.footnote && (
           <Reveal>
-            <p className="measure mt-10 text-[0.75rem] leading-relaxed text-smoke/70">{content.footnote}</p>
+            <p className="measure mt-10 text-[0.75rem] leading-relaxed text-smoke">{content.footnote}</p>
           </Reveal>
         )}
       </div>

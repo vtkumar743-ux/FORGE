@@ -40,7 +40,7 @@ export function CalculatorBlockSection({ content }: { content: CalculatorBlockCo
             <h2 className="display-l text-bone">{content.headline}</h2>
             {content.body && <p className="measure mt-6 text-body-l leading-relaxed text-smoke">{content.body}</p>}
             {content.footnote && (
-              <p className="measure mt-6 text-[0.75rem] leading-relaxed text-smoke/70">{content.footnote}</p>
+              <p className="measure mt-6 text-[0.75rem] leading-relaxed text-smoke">{content.footnote}</p>
             )}
             {content.cta && (
               <ButtonLink to={content.cta.href} variant="outline" className="mt-8" icon="arrow-right" iconAfter>
@@ -211,12 +211,12 @@ function BmrResult({ result, outputs }: { result: BmrResultShape; outputs: strin
               {typeof value === 'number' ? value.toLocaleString('en-IN') : value}
               <span className="ml-1.5 text-[0.875rem] text-smoke">{meta.suffix}</span>
             </p>
-            <p className="mt-1.5 text-[0.75rem] leading-snug text-smoke/70">{meta.hint}</p>
+            <p className="mt-1.5 text-[0.75rem] leading-snug text-smoke">{meta.hint}</p>
           </div>
         )
       })}
 
-      <p className="flex items-start gap-2.5 text-[0.75rem] leading-relaxed text-smoke/70 sm:col-span-2">
+      <p className="flex items-start gap-2.5 text-[0.75rem] leading-relaxed text-smoke sm:col-span-2">
         <Icon name="sparkles" size={14} className="mt-0.5 shrink-0 text-accent" />
         Estimates, not verdicts. Eat at maintenance for two weeks and weigh yourself before you trust the number — or
         get an InBody scan and have a coach read it back to you.

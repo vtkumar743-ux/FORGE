@@ -4,7 +4,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import { Button } from '@/components/ui/Button'
 import { Icon, type IconName } from '@/components/ui/Icon'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { useBillingActions, useMember, useMemberMutations } from '../lib/admin-api'
+import { useBillingActions, useDecideFreeze, useFreezeRequests, useMember, useMemberMutations } from '../lib/admin-api'
 import { describeErrorText, formatInr, formatIsoDate, formatIstDateTime, istToday, relativeTime } from '../lib/format'
 import {
   genderNames,
@@ -28,6 +28,7 @@ import {
 } from '../components/ui'
 import { MemberFormDrawer } from './MembersPage'
 import { RecordPaymentDrawer, SellPlanDrawer } from './billing-drawers'
+import { formatPhone, telLink } from '@/lib/utils'
 
 /**
  * One member, everything about them. The timeline is the point: joins, payments, visits and
@@ -112,7 +113,7 @@ export function MemberDetailPage() {
                   ))}
                 </div>
                 <dl className="mt-4 grid gap-x-8 gap-y-2.5 text-[0.875rem] sm:grid-cols-2 lg:grid-cols-3">
-                  <Detail label="Mobile" value={`+91 ${summary.phone}`} href={`tel:+91${summary.phone}`} />
+                  <Detail label="Mobile" value={formatPhone(summary.phone)} href={telLink(summary.phone)} />
                   <Detail label="Email" value={summary.email ?? '—'} />
                   <Detail label="Home branch" value={summary.branchName} />
                   <Detail label="Joined" value={formatIsoDate(summary.joinedOn)} />
@@ -142,6 +143,8 @@ export function MemberDetailPage() {
               </div>
             )}
           </Panel>
+
+          <FreezeRequests memberId={memberId} />
 
           {/* ---- memberships ---- */}
           <Panel
@@ -530,5 +533,94 @@ function FreezeDrawer({
         </div>
       </div>
     </Drawer>
+  )
+}
+
+/**
+ * Freeze asks the member raised in the portal. It sits above the membership table
+ * because it is the one thing on this screen that is waiting on the desk rather
+ * than merely recording what already happened.
+ */
+function FreezeRequests({ memberId }: { memberId: number }) {
+  const { data } = useFreezeRequests(memberId)
+  const decide = useDecideFreeze()
+  const toast = useToast()
+  const [declining, setDeclining] = useState<number | null>(null)
+  const [note, setNote] = useState('')
+
+  const pending = data ?? []
+  if (pending.length === 0) return null
+
+  function answer(id: number, approve: boolean, reason?: string) {
+    decide.mutate(
+      { id, approve, note: reason },
+      {
+        onSuccess: () => {
+          toast.success(approve ? 'Freeze applied' : 'Request declined', 'The member has been notified.')
+          setDeclining(null)
+          setNote('')
+        },
+        onError: (error) => toast.error('That did not go through', describeErrorText(error)),
+      },
+    )
+  }
+
+  return (
+    <Panel
+      title="Freeze requests"
+      description="Raised by the member in the portal. Approving applies the freeze and pushes the end date out by the same number of days."
+      padded={false}
+    >
+      <ul className="divide-y divide-[var(--hairline)]">
+        {pending.map((request) => (
+          <li key={request.id} className="px-5 py-4">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-[0.9375rem]">
+                  {request.planName} · <span className="numeric">{request.days}</span> days from{' '}
+                  {formatIsoDate(request.requestedFrom)} to {formatIsoDate(request.requestedTo)}
+                </p>
+                <p className="mt-1.5 text-[0.8125rem] leading-relaxed text-smoke">"{request.reason}"</p>
+                <p className="mt-1 text-[0.6875rem] text-smoke/75">Asked {relativeTime(request.requestedAtUtc)}</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button size="sm" loading={decide.isPending} onClick={() => answer(request.id, true)}>
+                  Approve
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setDeclining(request.id)}>
+                  Decline
+                </Button>
+              </div>
+            </div>
+
+            {declining === request.id && (
+              <div className="mt-4 space-y-3 border-t border-[var(--hairline)] pt-4">
+                <TextField
+                  label="Why"
+                  hint="Shown to the member word for word. A decline with no reason reads as a system fault."
+                  value={note}
+                  onChange={(event) => setNote(event.target.value)}
+                  placeholder="Your plan's freeze allowance is already used up this year."
+                />
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    loading={decide.isPending}
+                    disabled={note.trim().length < 3}
+                    onClick={() => answer(request.id, false, note.trim())}
+                  >
+                    Send the decline
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => setDeclining(null)}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    </Panel>
   )
 }

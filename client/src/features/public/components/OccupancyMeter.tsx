@@ -93,7 +93,7 @@ export function OccupancyMeter({
           {band.label}
         </p>
         {showCopy && <p className="mt-1.5 text-[0.875rem] leading-relaxed text-smoke">{band.copy}</p>}
-        <p className="mt-2 flex items-center gap-1.5 text-[0.75rem] text-smoke/70">
+        <p className="mt-2 flex items-center gap-1.5 text-[0.75rem] text-smoke">
           <Icon name="users" size={13} />
           <span className="numeric">
             {occupancy.currentCount} of {occupancy.capacity}

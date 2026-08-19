@@ -4,6 +4,7 @@ import { ButtonLink } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { cn, toLines } from '@/lib/utils'
 import type { HeroContent } from './schemas'
+import { Photo } from '@/components/ui/Photo'
 
 /**
  * Cinematic hero (03 §1, Barry's/Third Space pattern): full-bleed looping video,
@@ -47,15 +48,14 @@ export function HeroSection({ content }: { content: HeroContent }) {
       {!isTextOnly && (
         <div className="absolute inset-0 -z-10">
           {content.posterUrl && (
-            <img
+            <Photo
               src={content.posterUrl}
               alt={content.posterAlt ?? ''}
-              // The hero image is the LCP element — load it eagerly at high priority.
-              loading="eager"
-              fetchPriority="high"
-              decoding="async"
+              // The hero is the LCP element: eager, high priority, and full-viewport wide.
+              priority
+              sizes="100vw"
               className={cn(
-                'graded h-full w-full object-cover transition-opacity duration-700',
+                'h-full w-full object-cover transition-opacity duration-700',
                 videoReady && 'opacity-0',
               )}
             />
@@ -68,7 +68,9 @@ export function HeroSection({ content }: { content: HeroContent }) {
               loop
               playsInline
               preload="none"
-              poster={content.posterUrl}
+              // Deliberately no `poster`: the <img> above is the poster, rendered from a
+              // responsive srcset. Setting one here downloads a second copy of the frame at a
+              // width nobody chose, for a video that starts transparent and preloads nothing.
               aria-hidden
               tabIndex={-1}
               className={cn(

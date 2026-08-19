@@ -5,7 +5,7 @@ import { Icon } from '@/components/ui/Icon'
 import { Reveal, RevealGroup } from '@/components/ui/Reveal'
 import { EmptyState } from '@/components/ui/Skeleton'
 import { useAuth } from '@/lib/auth'
-import { useOccupancy, useSiteSettings } from '@/lib/cms'
+import { useLiveOccupancyFeed, useSiteSettings } from '@/lib/cms'
 import { formatCount } from '@/lib/utils'
 
 /**
@@ -16,7 +16,8 @@ import { formatCount } from '@/lib/utils'
 export function AdminHome() {
   const { user, logout } = useAuth()
   const { data: settings } = useSiteSettings()
-  const { data: occupancy } = useOccupancy()
+  // The admin watches the whole network on one subscription (Module 4.1).
+  const { occupancy } = useLiveOccupancyFeed('network')
 
   const brand = settings?.values['brand.name'] ?? 'FORGE'
   const onFloor = occupancy?.reduce((total, entry) => total + entry.currentCount, 0) ?? 0

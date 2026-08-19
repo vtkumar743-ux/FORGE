@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import {
   setting,
   settingFlag,
-  useOccupancy,
+  useLiveOccupancyFeed,
   useSiteSettings,
   type BranchOccupancy,
   type BranchSummary,
@@ -27,19 +27,40 @@ import type { BranchLocatorContent } from './schemas'
 export function BranchLocatorSection({ content }: { content: BranchLocatorContent }) {
   const { data: settings, isLoading } = useSiteSettings()
   const liveEnabled = settingFlag(settings, 'features.liveOccupancy', true) && content.showLiveOccupancy
-  const { data: occupancy } = useOccupancy(liveEnabled)
 
   const branches = [...(settings?.branches ?? [])].sort((a, b) =>
     content.sortBy === 'name' ? a.name.localeCompare(b.name) : a.displayOrder - b.displayOrder,
   )
 
-  const occupancyBySlug = new Map((occupancy ?? []).map((entry) => [entry.branchSlug, entry]))
+  // Subscribe to exactly the branches on screen: one busy branch should not wake every
+  // browser that happens to have a different city's page open.
+  const { occupancy, isLive } = useLiveOccupancyFeed(
+    branches.map((branch) => branch.slug),
+    liveEnabled,
+  )
+
+  const occupancyBySlug = new Map(occupancy.map((entry) => [entry.branchSlug, entry]))
   const isList = content.layout === 'list'
 
   return (
     <section className="section-y bg-ink">
       <div className="shell">
         <SectionHeader eyebrow={content.eyebrow} headline={content.headline} body={content.body} align="split" />
+
+        {liveEnabled && (
+          <p className="mt-4 flex items-center gap-2 text-caption text-smoke" aria-live="polite">
+            <span
+              className={cn(
+                'inline-block size-1.5 rounded-full',
+                isLive ? 'animate-pulse bg-[var(--success)]' : 'bg-smoke',
+              )}
+              aria-hidden="true"
+            />
+            {/* Said plainly: a gauge that claims to be live while the socket is down is worse
+                than one that admits it is a minute behind. */}
+            {isLive ? 'Updating live as people scan in' : 'Refreshing every couple of minutes'}
+          </p>
+        )}
 
         {isLoading && (
           <div className="mt-14 grid gap-5 lg:grid-cols-3" aria-busy="true">
@@ -65,7 +86,7 @@ export function BranchLocatorSection({ content }: { content: BranchLocatorConten
         </div>
 
         {content.nearestFirstPrompt && (
-          <p className="mt-8 text-[0.8125rem] text-smoke/70">
+          <p className="mt-8 text-[0.8125rem] text-smoke">
             {/* Honest about what we do not do yet: no geolocation prompt until it is wired. */}
             All three sit within 14 km of each other. {content.nearestFirstPrompt.replace(/^Use my location to /, 'To ')} — open
             any branch page for its map and directions.

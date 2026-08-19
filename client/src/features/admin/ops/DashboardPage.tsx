@@ -18,6 +18,7 @@ import { useDashboard } from '../lib/admin-api'
 import { delta, formatInr, formatInrCompact, formatIsoDate } from '../lib/format'
 import { Avatar, DataTable, FilterChip, PageHeader, Panel, RiskPill, StatCard } from '../components/ui'
 import type { TimeSeriesPoint } from '../lib/types'
+import { telLink } from '@/lib/utils'
 
 /**
  * The owner's first screen. Every tile is a live query rather than a nightly rollup, and
@@ -355,7 +356,7 @@ export function DashboardPage() {
                     align: 'right',
                     cell: (row) => (
                       <a
-                        href={`tel:+91${row.phone}`}
+                        href={telLink(row.phone)}
                         className="inline-flex size-8 items-center justify-center rounded-full border border-[var(--hairline-strong)] text-smoke transition-colors hover:border-[var(--accent-line)] hover:text-accent"
                         aria-label={`Call ${row.fullName}`}
                       >

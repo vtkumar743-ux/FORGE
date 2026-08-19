@@ -213,3 +213,29 @@ public class Payment : BaseEntity
     public decimal RefundedAmount { get; set; }
     public string? IdempotencyKey { get; set; }
 }
+
+/// <summary>
+/// A member's self-serve freeze ask, sitting between the request and the desk's decision.
+/// The freeze itself is only ever applied by <c>SubscriptionService.FreezeAsync</c>, so the
+/// policy limits (allowance, fee) are enforced in exactly one place regardless of who asked.
+/// </summary>
+public class FreezeRequest : BaseEntity
+{
+    public int MemberId { get; set; }
+    public Member Member { get; set; } = null!;
+    public int SubscriptionId { get; set; }
+    public Subscription Subscription { get; set; } = null!;
+
+    public DateOnly RequestedFrom { get; set; }
+    public DateOnly RequestedTo { get; set; }
+    public string Reason { get; set; } = string.Empty;
+
+    public FreezeRequestStatus Status { get; set; } = FreezeRequestStatus.Pending;
+    public DateTime RequestedAtUtc { get; set; } = DateTime.UtcNow;
+    public DateTime? DecidedAtUtc { get; set; }
+    public string? DecidedBy { get; set; }
+    /// <summary>Shown to the member verbatim — a decline with no reason reads as a system fault.</summary>
+    public string? DecisionNote { get; set; }
+
+    public int Days => Math.Max(0, RequestedTo.DayNumber - RequestedFrom.DayNumber);
+}

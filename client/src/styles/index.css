@@ -249,9 +249,12 @@
   }
 
   /* Outlined display type for the ticker. */
+  /* Outlined display type (the marquee's alternating words). The stroke is the only thing
+     painting these letters, so it carries the contrast: at the hairline's 22% it measured
+     1.82:1 against ink, well under the 3:1 large text needs. */
   .text-outline {
     color: transparent;
-    -webkit-text-stroke: 1px var(--hairline-strong);
+    -webkit-text-stroke: 1px var(--outline-stroke);
   }
 
   /* --- Form controls. Pill radius, steel fill, gold focus — one shape everywhere. --- */
@@ -261,7 +264,8 @@
     height: 3rem;
     padding-inline: 1.125rem;
     border-radius: var(--radius-pill);
-    border: 1px solid var(--hairline-strong);
+    /* 1.4.11: a form control's boundary needs 3:1, which the decorative hairline misses. */
+    border: 1px solid var(--field-line);
     background-color: var(--carbon);
     color: var(--bone);
     font-size: 0.9375rem;
@@ -269,10 +273,11 @@
       border-color var(--dur) var(--ease-out),
       background-color var(--dur) var(--ease-out);
   }
+  /* Placeholder text is still text: dimming the token below its own value put it at 4.27:1. */
   .auth-input::placeholder,
-  .field-input::placeholder { color: color-mix(in srgb, var(--smoke) 70%, transparent); }
+  .field-input::placeholder { color: var(--smoke); }
   .auth-input:hover,
-  .field-input:hover { border-color: color-mix(in srgb, var(--bone) 30%, transparent); }
+  .field-input:hover { border-color: color-mix(in srgb, var(--bone) 58%, transparent); }
   .auth-input:focus,
   .field-input:focus {
     border-color: var(--accent);
@@ -348,8 +353,37 @@
     --carbon: var(--paper-raised);
     --steel: var(--paper-line);
     --bone: var(--paper-ink);
-    --smoke: var(--paper-smoke);
+    /* Secondary text also lands on the thumbnail and avatar fill (--steel), where the base
+       paper-smoke measured 3.8:1. Darkened just enough to clear AA on every surface it sits on. */
+    --smoke: #61666e;
     --hairline: color-mix(in srgb, var(--paper-ink) 10%, transparent);
     --hairline-strong: color-mix(in srgb, var(--paper-ink) 18%, transparent);
+    --field-line: color-mix(in srgb, var(--paper-ink) 50%, transparent);
+    /* Gold, signal red and the confirmation green are brand values chosen against near-black.
+       On paper they fall under AA as text — the mint green measured 1.9:1, which is
+       effectively invisible on white — so the light surface runs darker instances of all
+       three. The hues are unchanged; only the values move. */
+    --accent: #7d6318;
+    --accent-hot: #c22d19;
+    --success: #1a7a50;
+
+    /*
+     * The same remap again, on Tailwind's own token names — and this second half is the one
+     * that does the work.
+     *
+     * `@theme` declares `--color-carbon: var(--carbon)` on :root, so that var() resolves
+     * against :root's value and inherits down as an already-computed literal. Re-declaring
+     * `--carbon` further down the tree therefore never reaches `bg-carbon`, `text-bone` or
+     * any other generated utility — only rules that write `var(--carbon)` directly. The
+     * block above covers those; this block covers the utilities, which is most of the panel.
+     */
+    --color-ink: var(--paper);
+    --color-carbon: var(--paper-raised);
+    --color-steel: var(--paper-line);
+    --color-bone: var(--paper-ink);
+    --color-smoke: #61666e;
+    --color-accent: #7d6318;
+    --color-accent-hot: #c22d19;
+    --color-success: #1a7a50;
   }
 }

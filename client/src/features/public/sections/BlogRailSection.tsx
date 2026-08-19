@@ -104,6 +104,9 @@ function PostCard({
   content: BlogRailContent
   size: 'large' | 'small'
 }) {
+  // SectionHeader renders an h2 only when the section has a headline. Without one, the card
+  // title is this section's top heading and must be an h2, or the page skips a level.
+  const Title = content.headline ? 'h3' : 'h2'
   return (
     <article className="group h-full">
       <Link to={`/journal/${post.slug}`} className="flex h-full flex-col focus-visible:outline-offset-4">
@@ -123,18 +126,18 @@ function PostCard({
             </div>
           )}
 
-          <h3
+          <Title
             className={cn(
               'display-m leading-[1.08] text-bone',
               size === 'large' ? 'text-[1.625rem]' : 'text-[1.1875rem]',
             )}
           >
             <span className="underline-slide">{post.title}</span>
-          </h3>
+          </Title>
 
           <p className="mt-3 flex-1 text-[0.9375rem] leading-relaxed text-smoke">{post.excerpt}</p>
 
-          <p className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.75rem] text-smoke/70">
+          <p className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.75rem] text-smoke">
             {content.showAuthor && <span className="text-bone/70">{post.authorName}</span>}
             {content.showAuthor && post.authorRole && <span>· {post.authorRole}</span>}
             {post.publishedAtUtc && (

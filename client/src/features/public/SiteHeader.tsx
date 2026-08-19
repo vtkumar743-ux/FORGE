@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { Icon } from '@/components/ui/Icon'
 import { ButtonLink } from '@/components/ui/Button'
 import { useAuth } from '@/lib/auth'
@@ -199,6 +199,7 @@ function MobileMenu({
   settings: SiteSettings | undefined
 }) {
   const { isAuthenticated, isAdmin } = useAuth()
+  const reduced = useReducedMotion()
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -213,10 +214,10 @@ function MobileMenu({
       {open && (
         <motion.div
           className="fixed inset-0 z-[var(--z-overlay)] lg:hidden"
-          initial={{ opacity: 0 }}
+          initial={reduced ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
+          exit={reduced ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: reduced ? 0 : 0.2 }}
         >
           <div className="absolute inset-0 bg-ink/80 backdrop-blur-sm" onClick={onClose} />
           <motion.div
@@ -224,10 +225,12 @@ function MobileMenu({
             aria-modal="true"
             aria-label="Menu"
             className="grain absolute inset-y-0 right-0 flex w-full max-w-sm flex-col bg-carbon"
-            initial={{ x: '100%' }}
+            // A full-width slide is exactly the motion someone with vestibular sensitivity
+            // turned the setting off for; under reduce the sheet simply appears.
+            initial={reduced ? false : { x: '100%' }}
             animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+            exit={reduced ? { x: 0 } : { x: '100%' }}
+            transition={{ duration: reduced ? 0 : 0.32, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="hairline-b flex h-[4.5rem] items-center justify-between px-6">
               <span className="caption">Menu</span>

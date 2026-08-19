@@ -32,6 +32,10 @@ export function TimetableEmbedSection({ content }: { content: TimetableEmbedCont
   const { data: settings } = useSiteSettings()
   const branches = settings?.branches ?? []
 
+  // SectionHeader renders an h2 only when the section has a headline. Without one, the day
+  // heading is this section's top heading and has to be an h2, or the page skips a level.
+  const DayHeading = content.headline ? 'h3' : 'h2'
+
   const lockedBranch = content.lockBranch ? (branchScope ?? content.defaultBranchSlug) : undefined
   const [branch, setBranch] = useState<string | undefined>(lockedBranch ?? content.defaultBranchSlug)
   const [format, setFormat] = useState<string | undefined>()
@@ -196,7 +200,7 @@ export function TimetableEmbedSection({ content }: { content: TimetableEmbedCont
                     {tab.isToday ? 'Today' : tab.weekday}
                   </span>
                   <span className="numeric mt-0.5 text-[1.125rem] font-semibold">{tab.day}</span>
-                  <span className={cn('numeric text-[0.625rem]', selected ? 'text-ink/70' : 'text-smoke/60')}>
+                  <span className={cn('numeric text-[0.625rem]', selected ? 'text-ink/70' : 'text-smoke')}>
                     {count} {count === 1 ? 'class' : 'classes'}
                   </span>
                 </button>
@@ -229,11 +233,11 @@ export function TimetableEmbedSection({ content }: { content: TimetableEmbedCont
             <>
               {selectedDay && visible.length > 0 && (
                 <>
-                  <h3 className="caption mb-5 flex items-center gap-4">
+                  <DayHeading className="caption mb-5 flex items-center gap-4">
                     {formatDayHeading(selectedDay)}
                     <span aria-hidden className="h-px flex-1 bg-[var(--hairline)]" />
-                    <span className="numeric text-smoke/60">{visible.length}</span>
-                  </h3>
+                    <span className="numeric text-smoke">{visible.length}</span>
+                  </DayHeading>
 
                   <div className="space-y-3">
                     {visible.map((session: ClassSession, index: number) => (
@@ -262,7 +266,7 @@ export function TimetableEmbedSection({ content }: { content: TimetableEmbedCont
           )}
         </div>
 
-        <p className="mt-8 flex items-center gap-2.5 text-[0.8125rem] text-smoke/70">
+        <p className="mt-8 flex items-center gap-2.5 text-[0.8125rem] text-smoke">
           <Icon name="clock" size={14} className="text-accent" />
           All times are IST. Booking opens 72 hours ahead and the waitlist promotes itself when a spot frees up.
         </p>

@@ -1,7 +1,8 @@
-using System.Text;
+﻿using System.Text;
 using Gym.Api.Contracts;
 using Gym.Api.Hubs;
 using Gym.Core.Entities;
+using Gym.Core.Interfaces;
 using Gym.Infrastructure;
 using Gym.Infrastructure.Persistence;
 using Gym.Infrastructure.Persistence.Seeding;
@@ -9,6 +10,7 @@ using Gym.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
 using Serilog;
 
@@ -25,6 +27,10 @@ var webRoot = builder.Environment.WebRootPath
 Directory.CreateDirectory(webRoot);
 
 builder.Services.AddInfrastructure(builder.Configuration, webRoot, builder.Environment.IsDevelopment());
+
+// The live meter's push seam: Infrastructure registers a no-op so the background workers and
+// design-time tooling stand alone; the API is where SignalR actually exists, so it swaps in.
+builder.Services.Replace(ServiceDescriptor.Singleton<IRealtimeNotifier, SignalROccupancyNotifier>());
 
 // ---------------------------------------------------------------- auth
 

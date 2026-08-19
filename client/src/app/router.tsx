@@ -22,7 +22,30 @@ const JournalPostPage = lazy(() =>
 
 const LoginPage = lazy(() => import('@/features/auth/LoginPage').then((m) => ({ default: m.LoginPage })))
 const RegisterPage = lazy(() => import('@/features/auth/RegisterPage').then((m) => ({ default: m.RegisterPage })))
+/**
+ * The member portal is one lazy chunk per screen behind a shared dark shell, the
+ * same shape as the admin tree — a member who only ever books a class never
+ * downloads the workout logger or the charting library.
+ */
+const MemberLayout = lazy(() => import('@/features/member/MemberLayout').then((m) => ({ default: m.MemberLayout })))
 const PortalHome = lazy(() => import('@/features/member/PortalHome').then((m) => ({ default: m.PortalHome })))
+const BookingPage = lazy(() => import('@/features/member/BookingPage').then((m) => ({ default: m.BookingPage })))
+const MyQrPage = lazy(() => import('@/features/member/MyQrPage').then((m) => ({ default: m.MyQrPage })))
+const MembershipPage = lazy(() =>
+  import('@/features/member/MembershipPage').then((m) => ({ default: m.MembershipPage })),
+)
+const WorkoutsPage = lazy(() => import('@/features/member/WorkoutsPage').then((m) => ({ default: m.WorkoutsPage })))
+const ProgressPage = lazy(() => import('@/features/member/ProgressPage').then((m) => ({ default: m.ProgressPage })))
+const ReferralsPage = lazy(() =>
+  import('@/features/member/ReferralsPage').then((m) => ({ default: m.ReferralsPage })),
+)
+const NotificationsPage = lazy(() =>
+  import('@/features/member/NotificationsPage').then((m) => ({ default: m.NotificationsPage })),
+)
+const ProfilePage = lazy(() => import('@/features/member/ProfilePage').then((m) => ({ default: m.ProfilePage })))
+const CommunityPage = lazy(() =>
+  import('@/features/member/CommunityPage').then((m) => ({ default: m.CommunityPage })),
+)
 
 /**
  * The admin panel is one lazy chunk per screen behind a shared shell. A visitor who never
@@ -63,6 +86,18 @@ const SiteSettingsPage = lazy(() =>
 const ContentLibraryPage = lazy(() =>
   import('@/features/admin/cms/ContentLibraryPage').then((m) => ({ default: m.ContentLibraryPage })),
 )
+// Module 4 screens: the radar, the plan studio, corporate accounts, campaigns and the feed.
+const ChurnRadarPage = lazy(() =>
+  import('@/features/admin/ops/ChurnRadarPage').then((m) => ({ default: m.ChurnRadarPage })),
+)
+const PlanStudioPage = lazy(() =>
+  import('@/features/admin/ops/PlanStudioPage').then((m) => ({ default: m.PlanStudioPage })),
+)
+const CorporatePage = lazy(() =>
+  import('@/features/admin/ops/CorporatePage').then((m) => ({ default: m.CorporatePage })),
+)
+const OffersPage = lazy(() => import('@/features/admin/ops/OffersPage').then((m) => ({ default: m.OffersPage })))
+const FeedPage = lazy(() => import('@/features/admin/ops/FeedPage').then((m) => ({ default: m.FeedPage })))
 
 function RouteFallback() {
   return (
@@ -142,10 +177,25 @@ const router = createBrowserRouter([
     element: (
       <RequireRole role="Member">
         <Lazy>
-          <PortalHome />
+          <MemberLayout />
         </Lazy>
       </RequireRole>
     ),
+    children: [
+      { index: true, element: <Lazy><PortalHome /></Lazy> },
+      { path: 'book', element: <Lazy><BookingPage /></Lazy> },
+      { path: 'qr', element: <Lazy><MyQrPage /></Lazy> },
+      { path: 'membership', element: <Lazy><MembershipPage /></Lazy> },
+      { path: 'workouts', element: <Lazy><WorkoutsPage /></Lazy> },
+      { path: 'progress', element: <Lazy><ProgressPage /></Lazy> },
+      { path: 'community', element: <Lazy><CommunityPage /></Lazy> },
+      { path: 'referrals', element: <Lazy><ReferralsPage /></Lazy> },
+      { path: 'notifications', element: <Lazy><NotificationsPage /></Lazy> },
+      { path: 'profile', element: <Lazy><ProfilePage /></Lazy> },
+      // Deep links written into notifications before this tree existed still land somewhere real.
+      { path: 'booking', element: <Lazy><BookingPage /></Lazy> },
+      { path: 'billing/:id', element: <Lazy><MembershipPage /></Lazy> },
+    ],
   },
   {
     path: '/admin',
@@ -167,6 +217,12 @@ const router = createBrowserRouter([
       { path: 'billing/invoices', element: <Lazy><InvoicesPage /></Lazy> },
       { path: 'billing/invoices/:id', element: <Lazy><InvoiceDetailPage /></Lazy> },
       { path: 'billing/collections', element: <Lazy><CollectionsPage /></Lazy> },
+      { path: 'churn', element: <Lazy><ChurnRadarPage /></Lazy> },
+      { path: 'plan-studio', element: <Lazy><PlanStudioPage /></Lazy> },
+      { path: 'plan-studio/:memberId', element: <Lazy><PlanStudioPage /></Lazy> },
+      { path: 'corporate', element: <Lazy><CorporatePage /></Lazy> },
+      { path: 'offers', element: <Lazy><OffersPage /></Lazy> },
+      { path: 'feed', element: <Lazy><FeedPage /></Lazy> },
       { path: 'cms', element: <Lazy><CmsPagesPage /></Lazy> },
       { path: 'cms/pages/:id', element: <Lazy><CmsPageEditorPage /></Lazy> },
       { path: 'cms/media', element: <Lazy><MediaLibraryPage /></Lazy> },

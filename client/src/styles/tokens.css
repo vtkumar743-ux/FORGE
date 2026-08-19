@@ -23,6 +23,11 @@
   --bone-dim: color-mix(in srgb, var(--bone) 62%, transparent);
   --hairline: color-mix(in srgb, var(--bone) 12%, transparent);
   --hairline-strong: color-mix(in srgb, var(--bone) 22%, transparent);
+  /* Form controls are held to WCAG 1.4.11 (3:1 against their background), which a decorative
+     hairline does not reach. Inputs and selects use this instead of --hairline-strong. */
+  --field-line: color-mix(in srgb, var(--bone) 42%, transparent);
+  /* Outlined display type paints only its stroke, so the stroke must clear 3:1 on its own. */
+  --outline-stroke: color-mix(in srgb, var(--bone) 42%, transparent);
   --scrim: linear-gradient(to bottom, rgb(0 0 0 / 0.2), rgb(0 0 0 / 0.75));
 
   /* ---- Admin light surface (03 §2: same tokens, light base) ---- */
@@ -85,5 +90,7 @@
     --bone-dim: rgb(245 243 238 / 0.62);
     --hairline: rgb(245 243 238 / 0.12);
     --hairline-strong: rgb(245 243 238 / 0.22);
+    --field-line: rgb(245 243 238 / 0.42);
+    --outline-stroke: rgb(245 243 238 / 0.42);
   }
 }

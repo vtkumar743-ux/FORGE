@@ -411,7 +411,7 @@ public record SellPlanRequest
     public decimal? CollectAmount { get; init; }
 }
 
-public record FreezeRequest
+public record FreezeSubscriptionRequest
 {
     [Required] public DateOnly From { get; init; }
     [Required] public DateOnly To { get; init; }
@@ -941,4 +941,11 @@ public record ConvertLeadRequest
     public PaymentMode? CollectMode { get; init; }
     public decimal? CollectAmount { get; init; }
     public string? InitialPassword { get; init; }
+}
+
+/// <summary>The desk's answer to a member's freeze ask; a decline should carry a reason.</summary>
+public record DecideFreezeRequest
+{
+    public required bool Approve { get; init; }
+    public string? Note { get; init; }
 }

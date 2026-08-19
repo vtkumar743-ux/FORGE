@@ -43,7 +43,7 @@ export function StatBandSection({ content }: { content: StatBandContent }) {
 
         {content.footnote && (
           <Reveal delay={0.1}>
-            <p className="mt-10 max-w-2xl text-[0.75rem] leading-relaxed text-smoke/70">
+            <p className="mt-10 max-w-2xl text-[0.75rem] leading-relaxed text-smoke">
               {content.footnote}
             </p>
           </Reveal>

@@ -765,3 +765,21 @@ export const weekdayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursd
 export function enumName(names: readonly string[], value: number | null | undefined): string {
   return typeof value === 'number' ? names[value] ?? String(value) : '—'
 }
+
+/** Mirrors PortalFreezeRequestRow — the member portal's ask, as the desk sees it. */
+export interface FreezeRequestRow {
+  id: number
+  subscriptionId: number
+  planName: string
+  requestedFrom: string
+  requestedTo: string
+  days: number
+  reason: string
+  status: number
+  statusName: 'Pending' | 'Approved' | 'Declined' | 'Withdrawn'
+  requestedAtUtc: string
+  decidedAtUtc: string | null
+  decisionNote: string | null
+  memberName: string | null
+  memberCode: string | null
+}

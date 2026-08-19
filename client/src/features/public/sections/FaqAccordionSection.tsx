@@ -27,6 +27,10 @@ export function FaqAccordionSection({ content }: { content: FaqAccordionContent 
 
   const groups = content.groupByCategory ? groupByCategory(limited, content.categoryOrder) : [{ name: null, items: limited }]
 
+  // SectionHeader renders an h2 only when the section has a headline. Without one, the group
+  // name is this section's top heading and has to be an h2, or the page skips a level.
+  const GroupHeading = content.headline ? 'h3' : 'h2'
+
   return (
     <section className="section-y bg-ink">
       <div className="shell">
@@ -45,16 +49,24 @@ export function FaqAccordionSection({ content }: { content: FaqAccordionContent 
             <div key={group.name ?? 'all'} className="mb-12 last:mb-0">
               {group.name && (
                 <Reveal>
-                  <h3 className="caption mb-5 flex items-center gap-4">
+                  <GroupHeading className="caption mb-5 flex items-center gap-4">
                     {group.name}
                     <span aria-hidden className="h-px flex-1 bg-[var(--hairline)]" />
-                  </h3>
+                  </GroupHeading>
                 </Reveal>
               )}
 
               <div className="divide-y divide-[var(--hairline)] border-y border-[var(--hairline)]">
                 {group.items.map((faq, index) => (
-                  <FaqRow key={faq.id} faq={faq} defaultOpen={content.defaultOpenFirst && index === 0} />
+                  <FaqRow
+                    key={faq.id}
+                    faq={faq}
+                    defaultOpen={content.defaultOpenFirst && index === 0}
+                    // The group heading is optional, so the question sits one level below
+                    // whichever heading actually precedes it. Fixed h4 skipped h3 on a
+                    // section with no groups.
+                    headingLevel={group.name ? (content.headline ? 4 : 3) : content.headline ? 3 : 2}
+                  />
                 ))}
               </div>
             </div>
@@ -65,8 +77,17 @@ export function FaqAccordionSection({ content }: { content: FaqAccordionContent 
   )
 }
 
-function FaqRow({ faq, defaultOpen }: { faq: Faq; defaultOpen?: boolean }) {
+function FaqRow({
+  faq,
+  defaultOpen,
+  headingLevel = 4,
+}: {
+  faq: Faq
+  defaultOpen?: boolean
+  headingLevel?: 2 | 3 | 4
+}) {
   const [open, setOpen] = useState(Boolean(defaultOpen))
+  const Heading = (`h${headingLevel}` as const) satisfies 'h2' | 'h3' | 'h4'
 
   return (
     <details
@@ -75,14 +96,14 @@ function FaqRow({ faq, defaultOpen }: { faq: Faq; defaultOpen?: boolean }) {
       className="group"
     >
       <summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-6 [&::-webkit-details-marker]:hidden">
-        <h4
+        <Heading
           className={cn(
             'text-[1.0625rem] font-medium leading-snug transition-colors duration-200 ease-out',
             open ? 'text-accent' : 'text-bone group-hover:text-accent',
           )}
         >
           {faq.question}
-        </h4>
+        </Heading>
         <span
           aria-hidden
           className={cn(

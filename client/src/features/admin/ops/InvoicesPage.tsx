@@ -21,6 +21,7 @@ import {
   TextField,
 } from '../components/ui'
 import { RecordPaymentDrawer } from './billing-drawers'
+import { formatPhone, whatsappLink } from '@/lib/utils'
 
 /** The invoice ledger. Filters live in the URL so "Whitefield, unpaid" is a bookmark. */
 export function InvoicesPage() {
@@ -289,7 +290,7 @@ export function InvoiceDetailPage() {
                 {header.memberName}
               </Link>
               <p className="numeric mt-1 text-[0.8125rem] text-smoke">{header.memberCode}</p>
-              <p className="numeric text-[0.8125rem] text-smoke">+91 {data.memberPhone}</p>
+              <p className="numeric text-[0.8125rem] text-smoke">{formatPhone(data.memberPhone)}</p>
               {data.memberEmail && <p className="text-[0.8125rem] text-smoke">{data.memberEmail}</p>}
               {data.customerGstin && <p className="numeric mt-1 text-[0.8125rem]">GSTIN {data.customerGstin}</p>}
             </div>
@@ -565,7 +566,7 @@ export function CollectionsPage() {
               cell: (row) => (
                 <div className="flex justify-end gap-1.5">
                   <a
-                    href={`https://wa.me/91${row.phone}`}
+                    href={whatsappLink(row.phone)}
                     target="_blank"
                     rel="noreferrer noopener"
                     className="inline-flex size-8 items-center justify-center rounded-full border border-[var(--hairline-strong)] text-smoke transition-colors hover:border-success/50 hover:text-success"

@@ -3,6 +3,7 @@ import { Reveal } from '@/components/ui/Reveal'
 import { SectionHeader } from '../components/SectionHeader'
 import { cn } from '@/lib/utils'
 import type { AnnotatedFacilityContent } from './schemas'
+import { Photo } from '@/components/ui/Photo'
 
 /**
  * Annotated facility photograph (03 §4, the Gymshark technique): thin gold leader lines
@@ -25,12 +26,11 @@ export function AnnotatedFacilitySection({ content }: { content: AnnotatedFacili
 
         <Reveal distance={32} className="mt-12">
           <figure className="relative overflow-hidden rounded-[var(--radius-card)] bg-steel">
-            <img
+            <Photo
               src={content.imageUrl}
               alt={content.imageAlt ?? ''}
-              loading="lazy"
-              decoding="async"
-              className="graded aspect-[16/9] w-full object-cover"
+              sizes="(min-width: 1024px) 66vw, 100vw"
+              className="aspect-[16/9] w-full object-cover"
             />
             <div aria-hidden className="absolute inset-0 bg-ink/25" />
 

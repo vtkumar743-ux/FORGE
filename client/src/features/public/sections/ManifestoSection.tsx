@@ -1,6 +1,7 @@
 import { Reveal, KineticHeading } from '@/components/ui/Reveal'
 import { cn } from '@/lib/utils'
 import type { ManifestoContent } from './schemas'
+import { Photo } from '@/components/ui/Photo'
 
 /**
  * Full-bleed image ↔ constrained-text alternation (03 §5, the Third Space rhythm).
@@ -43,12 +44,11 @@ export function ManifestoSection({ content }: { content: ManifestoContent }) {
             className={cn('lg:col-span-6', imageRight ? 'lg:order-2' : 'lg:order-1')}
           >
             <figure className="relative overflow-hidden rounded-[var(--radius-card)]">
-              <img
+              <Photo
                 src={content.imageUrl}
                 alt={content.imageAlt ?? ''}
-                loading="lazy"
-                decoding="async"
-                className="graded aspect-[4/5] w-full object-cover"
+                sizes="(min-width: 1024px) 40vw, 100vw"
+                className="aspect-[4/5] w-full object-cover"
               />
             </figure>
           </Reveal>

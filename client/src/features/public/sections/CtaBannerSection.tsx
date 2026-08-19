@@ -3,6 +3,7 @@ import { Reveal } from '@/components/ui/Reveal'
 import { setting, useSiteSettings } from '@/lib/cms'
 import { whatsappLink } from '@/lib/utils'
 import type { CtaBannerContent } from './schemas'
+import { Photo } from '@/components/ui/Photo'
 
 /**
  * Closing conversion block. `href: "whatsapp"` is a CMS keyword resolved here from
@@ -25,12 +26,11 @@ export function CtaBannerSection({ content }: { content: CtaBannerContent }) {
         <Reveal>
           <div className="grain relative overflow-hidden rounded-[var(--radius-sheet)] border border-[var(--hairline)] bg-carbon">
             {content.imageUrl && (
-              <img
+              <Photo
                 src={content.imageUrl}
                 alt={content.imageAlt ?? ''}
-                loading="lazy"
-                decoding="async"
-                className="graded absolute inset-0 h-full w-full object-cover opacity-30"
+                sizes="100vw"
+                className="absolute inset-0 h-full w-full object-cover opacity-30"
               />
             )}
             <div

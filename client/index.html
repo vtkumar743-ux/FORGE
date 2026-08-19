@@ -12,6 +12,7 @@
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
 
     <!--
       Two-font system (03 §3). Clash Display ships a genuine variable face with a
@@ -22,6 +23,11 @@
     <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!--
+      Loaded render-blocking on purpose. Both sheets carry display=swap, so text is never
+      invisible; deferring them measured no reliable first-paint win and roughly doubled
+      layout shift as the display face swapped in under the headline.
+    -->
     <link
       rel="stylesheet"
       href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700,variable&display=swap"
@@ -41,6 +47,9 @@
     <meta property="og:site_name" content="FORGE" />
     <meta property="og:title" content="FORGE — Strength, built in Bengaluru" />
     <meta property="og:image" content="/media/og/forge-default.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The FORGE lifting floor in Bengaluru." />
     <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>

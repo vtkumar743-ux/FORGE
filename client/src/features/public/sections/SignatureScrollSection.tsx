@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
 import type { SignatureScrollContent } from './schemas'
+import { Photo } from '@/components/ui/Photo'
 
 /**
  * The one signature scroll moment on the home page (03 §6): a facility photograph scales
@@ -28,12 +29,11 @@ export function SignatureScrollSection({ content }: { content: SignatureScrollCo
   if (reduced) {
     return (
       <section className="relative isolate grain overflow-hidden">
-        <img
+        <Photo
           src={content.imageUrl}
           alt={content.imageAlt ?? ''}
-          loading="lazy"
-          decoding="async"
-          className="graded h-[min(80svh,44rem)] w-full object-cover"
+          sizes="100vw"
+          className="h-[min(80svh,44rem)] w-full object-cover"
         />
         <div aria-hidden className="absolute inset-0 bg-ink/55" />
         <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
@@ -51,12 +51,11 @@ export function SignatureScrollSection({ content }: { content: SignatureScrollCo
           className="grain relative isolate h-[86svh] w-full overflow-hidden"
           style={{ scale, borderRadius: radius }}
         >
-          <img
+          <Photo
             src={content.imageUrl}
             alt={content.imageAlt ?? ''}
-            loading="lazy"
-            decoding="async"
-            className="graded absolute inset-0 h-full w-full object-cover"
+            sizes="100vw"
+            className="absolute inset-0 h-full w-full object-cover"
           />
           <div aria-hidden className="absolute inset-0 bg-ink/50" />
 

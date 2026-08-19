@@ -423,3 +423,52 @@ function clean(params: object): Record<string, unknown> {
     Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== ''),
   )
 }
+
+/* ---------------------------------------------------------------- typical hours */
+
+export const typicalHourPointSchema = z.object({
+  dayOfWeek: z.number(),
+  hour: z.number(),
+  label: z.string(),
+  averageVisits: z.number(),
+  percentOfCapacity: z.number(),
+})
+
+export const typicalHoursSchema = z.object({
+  branchId: z.number(),
+  branchName: z.string(),
+  branchSlug: z.string(),
+  live: z
+    .object({
+      branchId: z.number(),
+      branchName: z.string(),
+      branchSlug: z.string(),
+      currentCount: z.number(),
+      capacity: z.number(),
+      percentFull: z.number(),
+      band: z.number(),
+      asOfUtc: z.string(),
+    })
+    .nullable()
+    .optional(),
+  hours: z.array(typicalHourPointSchema),
+  busiestLabel: z.string().nullable().optional(),
+  quietestLabel: z.string().nullable().optional(),
+})
+
+export type TypicalHours = z.infer<typeof typicalHoursSchema>
+export type TypicalHourPoint = z.infer<typeof typicalHourPointSchema>
+
+/**
+ * "Typically busy at 7 PM" (Module 4.1). Eight weeks of check-ins averaged per weekday
+ * hour — it changes slowly, so it caches for an hour rather than riding the live meter.
+ */
+export function useTypicalHours(branchSlug: string | undefined, enabled = true): UseQueryResult<TypicalHours> {
+  return useQuery({
+    queryKey: ['public', 'typical-hours', branchSlug],
+    queryFn: async () =>
+      typicalHoursSchema.parse((await api.get(`/branches/${branchSlug}/typical-hours`)).data),
+    enabled: enabled && !!branchSlug,
+    staleTime: 60 * 60 * 1000,
+  })
+}

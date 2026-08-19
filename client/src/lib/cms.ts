@@ -1,6 +1,8 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query'
+import { useMemo } from 'react'
 import { z } from 'zod'
 import { api } from './api'
+import { useLiveOccupancy } from './realtime'
 
 /* ============================================================================
    CMS contracts
@@ -143,10 +145,38 @@ export function useOccupancy(enabled = true): UseQueryResult<BranchOccupancy[]> 
   return useQuery({
     queryKey: cmsKeys.occupancy,
     queryFn: async () => z.array(occupancySchema).parse((await api.get('/branches/occupancy')).data),
-    // Polling is the Phase-1 fallback; Phase 4 replaces it with the SignalR push.
-    refetchInterval: 60_000,
+    // The SignalR push (Module 4.1) carries the meter between polls. This interval is the
+    // floor underneath it: a browser that cannot hold a socket still gets a moving number,
+    // and a socket that reconnects has a correct baseline to reconcile against.
+    refetchInterval: 120_000,
     enabled,
   })
+}
+
+/**
+ * The live meter. Polls for the first paint, then lets the hub push updates over the top —
+ * merged by branch slug, newest reading wins. Every surface that renders occupancy uses this
+ * rather than the raw query, so the public page, the portal and the dashboard agree.
+ */
+export function useLiveOccupancyFeed(
+  slugs: string[] | 'network',
+  enabled = true,
+): { occupancy: BranchOccupancy[]; isLive: boolean; isLoading: boolean } {
+  const polled = useOccupancy(enabled)
+  const { updates, status } = useLiveOccupancy(slugs, { enabled })
+
+  const merged = useMemo(() => {
+    const rows = polled.data ?? []
+    if (Object.keys(updates).length === 0) return rows
+    return rows.map((row) => {
+      const pushed = updates[row.branchSlug]
+      if (!pushed) return row
+      // A stale push (an old socket frame arriving after a fresh poll) must not win.
+      return Date.parse(pushed.asOfUtc) >= Date.parse(row.asOfUtc) ? pushed : row
+    })
+  }, [polled.data, updates])
+
+  return { occupancy: merged, isLive: status === 'live', isLoading: polled.isLoading }
 }
 
 /* ---------------------------------------------------------------- helpers */

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { useSiteSettings } from '@/lib/cms'
-import { cn } from '@/lib/utils'
+import { cn, formatPhone, telLink, whatsappLink } from '@/lib/utils'
 import { useLead, useLeadActions, useLeadBoard, usePlans } from '../lib/admin-api'
 import { describeErrorText, formatInr, formatIstDateTime, istToday, relativeTime } from '../lib/format'
 import { followUpChannelNames, leadSourceNames, leadStageNames, type LeadCard } from '../lib/types'
@@ -163,6 +163,9 @@ export function LeadsPage() {
               }}
               className={cn(
                 'flex min-h-[18rem] flex-col rounded-[var(--radius-card)] border bg-carbon transition-colors',
+                // Bounded so the column scrolls its own cards instead of growing the page:
+                // the stage name and its count have to stay visible while you work a column.
+                'lg:max-h-[calc(100dvh-17rem)]',
                 dropTarget === column.stage
                   ? 'border-accent bg-[var(--accent-soft)]'
                   : 'border-[var(--hairline)]',
@@ -261,7 +264,7 @@ function BoardCard({
           <div className="min-w-0 flex-1">
             <p className="truncate text-[0.8125rem] font-medium">{card.fullName}</p>
             <p className="numeric truncate text-[0.6875rem] text-smoke">
-              +91 {card.phone}
+              {formatPhone(card.phone)}
             </p>
           </div>
         </div>
@@ -270,7 +273,13 @@ function BoardCard({
 
         <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
           {card.branchName && <Pill tone="muted">{card.branchName.replace('FORGE ', '')}</Pill>}
-          {card.interestedPlanName && <Pill tone="accent">{card.interestedPlanName}</Pill>}
+          {/* A board column is ~200px wide and pills do not wrap, so a long plan name
+              ("Personal Training — 12 Sessions") ran off the edge of the card. */}
+          {card.interestedPlanName && (
+            <Pill tone="accent" className="max-w-full min-w-0">
+              <span className="truncate">{card.interestedPlanName}</span>
+            </Pill>
+          )}
           {card.isOverdue && <Pill tone="danger">overdue</Pill>}
           {!card.firstResponseAtUtc && card.stage < 4 && <Pill tone="warn">unanswered</Pill>}
         </div>
@@ -281,8 +290,16 @@ function BoardCard({
         </p>
       </button>
 
-      {/* Keyboard and touch path — drag alone is not an accessible way to move a card. */}
-      <div className="mt-2 flex items-center gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+      {/* Keyboard and touch path — drag alone is not an accessible way to move a card.
+          Visible by default so the desk tablet can reach them; the fade-until-hover is applied
+          only where a real pointer exists, which is the one place it does not hide anything. */}
+      <div
+        className={cn(
+          'mt-2 flex items-center gap-1 transition-opacity',
+          'focus-within:opacity-100 group-hover:opacity-100',
+          '[@media(hover:hover)]:opacity-0',
+        )}
+      >
         <button
           type="button"
           onClick={() => onMove(Math.max(0, card.stage - 1))}
@@ -302,14 +319,14 @@ function BoardCard({
           <Icon name="chevron-right" size={14} />
         </button>
         <a
-          href={`tel:+91${card.phone}`}
+          href={telLink(card.phone)}
           className="ml-auto rounded-full p-1 text-smoke transition-colors hover:text-accent"
           aria-label={`Call ${card.fullName}`}
         >
           <Icon name="phone" size={13} />
         </a>
         <a
-          href={`https://wa.me/91${card.phone}`}
+          href={whatsappLink(card.phone)}
           target="_blank"
           rel="noreferrer noopener"
           className="rounded-full p-1 text-smoke transition-colors hover:text-success"
@@ -401,7 +418,7 @@ function LeadDrawer({ leadId, onClose }: { leadId: number | null; onClose: () =>
             </div>
 
             <dl className="grid gap-x-6 gap-y-3 text-[0.875rem] sm:grid-cols-2">
-              <Field label="Mobile" value={`+91 ${data.card.phone}`} href={`tel:+91${data.card.phone}`} />
+              <Field label="Mobile" value={formatPhone(data.card.phone)} href={telLink(data.card.phone)} />
               <Field label="Email" value={data.card.email ?? '—'} />
               <Field label="Source" value={data.card.sourceDetail ?? leadSourceNames[data.card.source]} />
               <Field label="Goal" value={data.card.goal ?? '—'} />
@@ -588,7 +605,7 @@ function ConvertDrawer({
       open={open}
       onClose={onClose}
       title="Convert to member"
-      description={`${lead.fullName} · +91 ${lead.phone}. Creates the member and a portal login, and optionally sells the plan in the same step.`}
+      description={`${lead.fullName} · ${formatPhone(lead.phone)}. Creates the member and a portal login, and optionally sells the plan in the same step.`}
       footer={
         <>
           <Button variant="ghost" size="sm" onClick={onClose}>

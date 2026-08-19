@@ -157,7 +157,7 @@ const toneClasses: Record<Tone, string> = {
   warn: 'border-[var(--accent-line)] text-[color-mix(in_srgb,var(--accent)_70%,var(--bone))] bg-[var(--accent-soft)]',
   danger: 'border-accent-hot/45 text-accent-hot bg-[color-mix(in_srgb,var(--accent-hot)_9%,transparent)]',
   accent: 'border-[var(--accent-line)] text-accent bg-[var(--accent-soft)]',
-  muted: 'border-[var(--hairline)] text-smoke/70',
+  muted: 'border-[var(--hairline)] text-smoke',
 }
 
 export function Pill({
@@ -274,7 +274,7 @@ function FieldShell({
 /** Admin inputs are shorter and squarer than the public pills — tables, not landing pages. */
 const control =
   'w-full rounded-[0.625rem] border bg-[color-mix(in_srgb,var(--bone)_4%,var(--carbon))] px-3 text-[0.875rem] ' +
-  'text-bone transition-[border-color,box-shadow] duration-200 ease-out placeholder:text-smoke/70 ' +
+  'text-bone transition-[border-color,box-shadow] duration-200 ease-out placeholder:text-smoke ' +
   'focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-[var(--accent-soft)] ' +
   'disabled:cursor-not-allowed disabled:opacity-50'
 
@@ -305,7 +305,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function T
             control,
             'h-10',
             addon ? 'pr-10' : undefined,
-            error ? 'border-accent-hot' : 'border-[var(--hairline-strong)]',
+            error ? 'border-accent-hot' : 'border-[var(--field-line)]',
           )}
           {...rest}
         />
@@ -343,7 +343,7 @@ export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(funct
         className={cn(
           control,
           'h-10 appearance-none bg-no-repeat pr-9',
-          error ? 'border-accent-hot' : 'border-[var(--hairline-strong)]',
+          error ? 'border-accent-hot' : 'border-[var(--field-line)]',
         )}
         style={{
           // Inline SVG chevron — no icon font, and it picks up the smoke token.
@@ -383,7 +383,7 @@ export const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>
         className={cn(
           control,
           'resize-y py-2.5 leading-relaxed',
-          error ? 'border-accent-hot' : 'border-[var(--hairline-strong)]',
+          error ? 'border-accent-hot' : 'border-[var(--field-line)]',
         )}
         {...rest}
       />
@@ -424,7 +424,7 @@ export function Toggle({
         className={cn(
           'relative mt-0.5 h-5 w-9 shrink-0 rounded-full border transition-colors duration-200 ease-out',
           'disabled:cursor-not-allowed disabled:opacity-50',
-          checked ? 'border-accent bg-accent' : 'border-[var(--hairline-strong)] bg-[var(--steel)]',
+          checked ? 'border-accent bg-accent' : 'border-[var(--field-line)] bg-[var(--steel)]',
         )}
       >
         <span
@@ -465,7 +465,7 @@ export function FilterChip({
     >
       {children}
       {typeof count === 'number' && (
-        <span className={cn('numeric text-[0.6875rem]', active ? 'text-ink/70' : 'text-smoke/70')}>{count}</span>
+        <span className={cn('numeric text-[0.6875rem]', active ? 'text-ink/70' : 'text-smoke')}>{count}</span>
       )}
     </button>
   )

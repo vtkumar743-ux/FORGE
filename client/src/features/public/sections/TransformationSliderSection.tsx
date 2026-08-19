@@ -22,6 +22,10 @@ export function TransformationSliderSection({ content }: { content: Transformati
   const items = content.showAll ? (data ?? []) : (data ?? []).slice(0, content.limit ?? 3)
   const isGrid = content.layout === 'grid' || content.showAll
 
+  // SectionHeader renders an h2 only when the section has a headline. Without one, the member
+  // name is this section's top heading and must be an h2, or the page skips a level.
+  const CardTitle = content.headline ? 'h3' : 'h2'
+
   return (
     <section className="section-y bg-ink">
       <div className="shell">
@@ -74,7 +78,7 @@ export function TransformationSliderSection({ content }: { content: Transformati
                       {item.branchName && <Badge>{item.branchName.replace('FORGE ', '')}</Badge>}
                     </div>
 
-                    <h3 className="display-m mt-4 text-[1.25rem] text-bone">{item.memberDisplayName}</h3>
+                    <CardTitle className="display-m mt-4 text-[1.25rem] text-bone">{item.memberDisplayName}</CardTitle>
                     <p className="mt-2 text-[0.875rem] text-smoke">{item.program}</p>
 
                     {content.showWeights && item.weightBeforeKg != null && item.weightAfterKg != null && (

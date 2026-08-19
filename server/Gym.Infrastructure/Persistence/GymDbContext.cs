@@ -1,4 +1,4 @@
-using Gym.Core.Entities;
+﻿using Gym.Core.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -26,6 +26,7 @@ public class GymDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<InvoiceLine> InvoiceLines => Set<InvoiceLine>();
     public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<FreezeRequest> FreezeRequests => Set<FreezeRequest>();
 
     // Scheduling
     public DbSet<ClassFormat> ClassFormats => Set<ClassFormat>();
@@ -64,6 +65,10 @@ public class GymDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, 
     public DbSet<Challenge> Challenges => Set<Challenge>();
     public DbSet<FeedPost> FeedPosts => Set<FeedPost>();
     public DbSet<Notification> Notifications => Set<Notification>();
+
+    // Corporate (Module 4.6)
+    public DbSet<CorporateAccount> CorporateAccounts => Set<CorporateAccount>();
+    public DbSet<CorporateEnrolment> CorporateEnrolments => Set<CorporateEnrolment>();
 
     // CMS
     public DbSet<CmsPage> CmsPages => Set<CmsPage>();

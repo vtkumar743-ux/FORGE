@@ -1225,6 +1225,148 @@ namespace Gym.Infrastructure.Persistence.Migrations
                     b.ToTable("CmsSections", "gym");
                 });
 
+            modelBuilder.Entity("Gym.Core.Entities.CorporateAccount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BranchScope")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("nvarchar(24)");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<decimal>("DiscountPercent")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Domain")
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("HrContactEmail")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
+                    b.Property<string>("HrContactName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("HrContactPhone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("SeatCap")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SeatsUsed")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<DateOnly>("ValidFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("ValidTo")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("WaiveAdmissionFee")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("IsActive", "ValidTo");
+
+                    b.ToTable("CorporateAccounts", "gym");
+                });
+
+            modelBuilder.Entity("Gym.Core.Entities.CorporateEnrolment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CorporateAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("EmployeeId")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<DateOnly?>("EndedOn")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("EnrolledOn")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("WorkEmail")
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.HasIndex("CorporateAccountId", "MemberId", "IsActive");
+
+                    b.ToTable("CorporateEnrolments", "gym");
+                });
+
             modelBuilder.Entity("Gym.Core.Entities.Coupon", b =>
                 {
                     b.Property<int>("Id")
@@ -1588,6 +1730,72 @@ namespace Gym.Infrastructure.Persistence.Migrations
                     b.HasIndex("IsVisible", "PostedAtUtc");
 
                     b.ToTable("FeedPosts", "gym");
+                });
+
+            modelBuilder.Entity("Gym.Core.Entities.FreezeRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<DateTime?>("DecidedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DecidedBy")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("DecisionNote")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(400)
+                        .HasColumnType("nvarchar(400)");
+
+                    b.Property<DateTime>("RequestedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateOnly>("RequestedFrom")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("RequestedTo")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SubscriptionId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubscriptionId");
+
+                    b.HasIndex("MemberId", "Status");
+
+                    b.HasIndex("Status", "RequestedAtUtc");
+
+                    b.ToTable("FreezeRequests", "gym");
                 });
 
             modelBuilder.Entity("Gym.Core.Entities.Invoice", b =>
@@ -2133,11 +2341,18 @@ namespace Gym.Infrastructure.Persistence.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("nvarchar(512)");
 
+                    b.Property<string>("ChurnReasons")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
                     b.Property<int>("ChurnRisk")
                         .HasColumnType("int");
 
                     b.Property<int>("ChurnScore")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("ChurnScoredAtUtc")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("City")
                         .HasMaxLength(512)
@@ -2151,6 +2366,9 @@ namespace Gym.Infrastructure.Persistence.Migrations
 
                     b.Property<bool>("ConsentTransformationShowcase")
                         .HasColumnType("bit");
+
+                    b.Property<int?>("CorporateAccountId")
+                        .HasColumnType("int");
 
                     b.Property<string>("CorporateCode")
                         .HasMaxLength(512)
@@ -2203,6 +2421,9 @@ namespace Gym.Infrastructure.Persistence.Migrations
 
                     b.Property<DateOnly?>("LastVisitOn")
                         .HasColumnType("date");
+
+                    b.Property<DateTime?>("LastWinBackAtUtc")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("LongestStreakDays")
                         .HasColumnType("int");
@@ -2275,6 +2496,8 @@ namespace Gym.Infrastructure.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CorporateAccountId");
 
                     b.HasIndex("MemberCode")
                         .IsUnique();
@@ -4293,6 +4516,25 @@ namespace Gym.Infrastructure.Persistence.Migrations
                     b.Navigation("CmsPage");
                 });
 
+            modelBuilder.Entity("Gym.Core.Entities.CorporateEnrolment", b =>
+                {
+                    b.HasOne("Gym.Core.Entities.CorporateAccount", "CorporateAccount")
+                        .WithMany("Enrolments")
+                        .HasForeignKey("CorporateAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Gym.Core.Entities.Member", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CorporateAccount");
+
+                    b.Navigation("Member");
+                });
+
             modelBuilder.Entity("Gym.Core.Entities.DietPlan", b =>
                 {
                     b.HasOne("Gym.Core.Entities.Member", "Member")
@@ -4335,6 +4577,25 @@ namespace Gym.Infrastructure.Persistence.Migrations
                     b.Navigation("Branch");
 
                     b.Navigation("Member");
+                });
+
+            modelBuilder.Entity("Gym.Core.Entities.FreezeRequest", b =>
+                {
+                    b.HasOne("Gym.Core.Entities.Member", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Gym.Core.Entities.Subscription", "Subscription")
+                        .WithMany()
+                        .HasForeignKey("SubscriptionId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+
+                    b.Navigation("Subscription");
                 });
 
             modelBuilder.Entity("Gym.Core.Entities.Invoice", b =>
@@ -4429,6 +4690,10 @@ namespace Gym.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Gym.Core.Entities.Member", b =>
                 {
+                    b.HasOne("Gym.Core.Entities.CorporateAccount", "CorporateAccount")
+                        .WithMany()
+                        .HasForeignKey("CorporateAccountId");
+
                     b.HasOne("Gym.Core.Entities.Branch", "HomeBranch")
                         .WithMany("Members")
                         .HasForeignKey("HomeBranchId")
@@ -4445,6 +4710,8 @@ namespace Gym.Infrastructure.Persistence.Migrations
                         .HasForeignKey("Gym.Core.Entities.Member", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("CorporateAccount");
 
                     b.Navigation("HomeBranch");
 
@@ -4937,6 +5204,11 @@ namespace Gym.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Gym.Core.Entities.CmsPage", b =>
                 {
                     b.Navigation("Sections");
+                });
+
+            modelBuilder.Entity("Gym.Core.Entities.CorporateAccount", b =>
+                {
+                    b.Navigation("Enrolments");
                 });
 
             modelBuilder.Entity("Gym.Core.Entities.DietPlan", b =>

@@ -1,4 +1,4 @@
-using Gym.Core.Enums;
+﻿using Gym.Core.Enums;
 using Gym.Core.Interfaces;
 using Gym.Infrastructure.Persistence;
 using Gym.Infrastructure.Services;
@@ -9,7 +9,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Gym.Infrastructure.BackgroundJobs;
 
-public record OperationsSweep(int SessionsClosed, int NoShows, int SessionsCreated, int Expired, int AbsenteeAlerts);
+public record OperationsSweep(
+    int SessionsClosed, int NoShows, int SessionsCreated, int Expired, int AbsenteeAlerts, int FreezesApplied,
+    int ChurnRescored = 0, int OffersRetired = 0);
 
 /// <summary>
 /// The housekeeping the floor depends on: keep four weeks of sessions materialised ahead of
@@ -42,8 +44,10 @@ public class OperationsWorker : BackgroundService
                 var result = await RunOnceAsync(_scopes, stoppingToken);
                 _log.LogInformation(
                     "Operations sweep — {Closed} session(s) closed, {NoShows} no-show(s), " +
-                    "{Created} session(s) materialised, {Expired} membership(s) expired, {Alerts} absentee alert(s)",
-                    result.SessionsClosed, result.NoShows, result.SessionsCreated, result.Expired, result.AbsenteeAlerts);
+                    "{Created} session(s) materialised, {Expired} membership(s) expired, " +
+                    "{Freezes} freeze window(s) moved, {Alerts} absentee alert(s)",
+                    result.SessionsClosed, result.NoShows, result.SessionsCreated, result.Expired,
+                    result.FreezesApplied, result.AbsenteeAlerts);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
@@ -81,10 +85,69 @@ public class OperationsWorker : BackgroundService
         foreach (var schedule in schedules)
             created += await scheduling.MaterialiseAsync(schedule, today, horizon, ct);
 
+        var freezes = await ApplyFreezeWindowsAsync(db, today, ct);
         var expired = await ExpireAsync(db, today, ct);
         var alerts = await AbsenteeAlertsAsync(db, notifier, clock, ct);
 
-        return new OperationsSweep(closed, noShows, created, expired, alerts);
+        // Module 4: the radar has to be current before the dashboard reads it, and a campaign
+        // whose dates have passed must stop advertising a discount the point of sale refuses.
+        var churn = scope.ServiceProvider.GetRequiredService<ChurnService>();
+        var offers = scope.ServiceProvider.GetRequiredService<OfferService>();
+        var scored = await churn.RescoreAllAsync(ct);
+        var retired = await offers.SweepAsync(ct);
+
+        return new OperationsSweep(closed, noShows, created, expired, alerts, freezes, scored, retired);
+    }
+
+    /// <summary>
+    /// Opens and closes freeze windows on their dates.
+    ///
+    /// A freeze approved for next month leaves the member training until it starts; without
+    /// this the approval itself would lock them out the same afternoon. The reverse matters
+    /// just as much: a window that has passed must hand access back without anyone at the
+    /// desk having to remember to press resume.
+    /// </summary>
+    private static async Task<int> ApplyFreezeWindowsAsync(GymDbContext db, DateOnly today, CancellationToken ct)
+    {
+        var starting = await db.Subscriptions
+            .Where(s => s.Status == SubscriptionStatus.Active)
+            .Where(s => s.FreezeStartsOn != null && s.FreezeStartsOn <= today)
+            .Where(s => s.FreezeEndsOn != null && s.FreezeEndsOn > today)
+            .Take(500)
+            .ToListAsync(ct);
+
+        var ending = await db.Subscriptions
+            .Where(s => s.Status == SubscriptionStatus.Frozen)
+            .Where(s => s.FreezeEndsOn == null || s.FreezeEndsOn <= today)
+            .Take(500)
+            .ToListAsync(ct);
+
+        if (starting.Count == 0 && ending.Count == 0) return 0;
+
+        foreach (var subscription in starting) subscription.Status = SubscriptionStatus.Frozen;
+        foreach (var subscription in ending)
+            subscription.Status = subscription.EndsOn < today
+                ? SubscriptionStatus.Expired
+                : SubscriptionStatus.Active;
+
+        // Member status follows the best subscription they hold, not the one that just moved.
+        var touched = starting.Concat(ending).Select(s => s.MemberId).Distinct().ToList();
+        var byMember = await db.Subscriptions
+            .Where(s => touched.Contains(s.MemberId))
+            .Select(s => new { s.MemberId, s.Status })
+            .ToListAsync(ct);
+
+        var members = await db.Members.Where(m => touched.Contains(m.Id)).ToListAsync(ct);
+        foreach (var member in members)
+        {
+            var statuses = byMember.Where(s => s.MemberId == member.Id).Select(s => s.Status).ToList();
+            if (statuses.Contains(SubscriptionStatus.Active)) member.Status = MemberStatus.Active;
+            else if (statuses.Contains(SubscriptionStatus.Frozen)) member.Status = MemberStatus.Frozen;
+            else if (member.Status == MemberStatus.Frozen) member.Status = MemberStatus.Expired;
+        }
+
+        await db.SaveChangesAsync(ct);
+        return starting.Count + ending.Count;
     }
 
     /// <summary>Runs out memberships whose end date has passed and demotes the member with them.</summary>

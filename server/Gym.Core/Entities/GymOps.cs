@@ -1,4 +1,4 @@
-using Gym.Core.Enums;
+﻿using Gym.Core.Enums;
 
 namespace Gym.Core.Entities;
 
@@ -101,6 +101,14 @@ public class Member : BaseEntity
     public DateOnly? LastVisitOn { get; set; }
     public ChurnRiskBand ChurnRisk { get; set; } = ChurnRiskBand.Healthy;
     public int ChurnScore { get; set; }
+    /// <summary>Why the radar flagged them — shown on the row so the desk knows what to open with.</summary>
+    public string? ChurnReasons { get; set; }
+    public DateTime? ChurnScoredAtUtc { get; set; }
+    /// <summary>Stops the same person receiving a second win-back before the first has had time to work.</summary>
+    public DateTime? LastWinBackAtUtc { get; set; }
+
+    public int? CorporateAccountId { get; set; }
+    public CorporateAccount? CorporateAccount { get; set; }
 
     public ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
     public ICollection<Booking> Bookings { get; set; } = new List<Booking>();

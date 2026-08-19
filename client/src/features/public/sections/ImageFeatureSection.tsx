@@ -3,6 +3,7 @@ import { ButtonLink } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { cn } from '@/lib/utils'
 import type { ImageFeatureContent } from './schemas'
+import { Photo } from '@/components/ui/Photo'
 
 /**
  * Image + copy, alternating sides down the page (03 §5, §9.3). `full` breaks the shell for
@@ -13,12 +14,11 @@ export function ImageFeatureSection({ content }: { content: ImageFeatureContent 
   if (content.imagePosition === 'full') {
     return (
       <section className="relative isolate grain overflow-hidden">
-        <img
+        <Photo
           src={content.imageUrl}
           alt={content.imageAlt ?? ''}
-          loading="lazy"
-          decoding="async"
-          className="graded h-[min(70svh,38rem)] w-full object-cover"
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          className="h-[min(70svh,38rem)] w-full object-cover"
         />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-ink via-ink/60 to-ink/20" />
 
@@ -86,12 +86,11 @@ export function ImageFeatureSection({ content }: { content: ImageFeatureContent 
 
         <Reveal distance={36} className={cn('lg:col-span-6', imageRight ? 'lg:order-2' : 'lg:order-1')}>
           <figure className="overflow-hidden rounded-[var(--radius-card)]">
-            <img
+            <Photo
               src={content.imageUrl}
               alt={content.imageAlt ?? ''}
-              loading="lazy"
-              decoding="async"
-              className="graded aspect-[4/3] w-full object-cover"
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="aspect-[4/3] w-full object-cover"
             />
           </figure>
         </Reveal>

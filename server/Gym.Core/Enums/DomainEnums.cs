@@ -12,6 +12,8 @@ public enum AccessScope { HomeBranch = 0, AllBranches = 1 }
 
 public enum SubscriptionStatus { Pending = 0, Active = 1, Frozen = 2, Expired = 3, Cancelled = 4 }
 
+public enum FreezeRequestStatus { Pending = 0, Approved = 1, Declined = 2, Withdrawn = 3 }
+
 public enum InvoiceStatus { Draft = 0, Issued = 1, PartiallyPaid = 2, Paid = 3, Overdue = 4, Cancelled = 5, Refunded = 6 }
 
 public enum PaymentMode { Cash = 0, Upi = 1, Card = 2, NetBanking = 3, Cheque = 4, RazorpayLink = 5, BankTransfer = 6, Credit = 7 }

@@ -105,3 +105,20 @@ public class PaymentConfig : IEntityTypeConfiguration<Payment>
         e.HasIndex(x => new { x.BranchId, x.PaidAtUtc });
     }
 }
+
+public class FreezeRequestConfig : IEntityTypeConfiguration<FreezeRequest>
+{
+    public void Configure(EntityTypeBuilder<FreezeRequest> e)
+    {
+        e.HasOne(x => x.Member).WithMany().HasForeignKey(x => x.MemberId).OnDelete(DeleteBehavior.Cascade);
+        e.HasOne(x => x.Subscription).WithMany().HasForeignKey(x => x.SubscriptionId).OnDelete(DeleteBehavior.NoAction);
+
+        e.Property(x => x.Reason).HasMaxLength(400).IsRequired();
+        e.Property(x => x.DecisionNote).AsProseNullable();
+        e.Ignore(x => x.Days);
+
+        // The desk's pending queue, and the member's own history.
+        e.HasIndex(x => new { x.Status, x.RequestedAtUtc });
+        e.HasIndex(x => new { x.MemberId, x.Status });
+    }
+}

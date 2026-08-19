@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import { setting, useSiteSettings } from '@/lib/cms'
 import { cn } from '@/lib/utils'
+import { Photo } from '@/components/ui/Photo'
 
 /**
  * Split auth layout: graded photography on one side, the form on the other. Same dark-luxe
@@ -33,12 +34,11 @@ export function AuthShell({
       {/* Photography panel — hidden on small screens where it would only cost bandwidth. */}
       <aside className="grain relative hidden overflow-hidden lg:block">
         {posterUrl && (
-          <img
+          <Photo
             src={posterUrl}
             alt={posterAlt ?? ''}
-            loading="lazy"
-            decoding="async"
-            className="graded absolute inset-0 h-full w-full object-cover"
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            className="absolute inset-0 h-full w-full object-cover"
           />
         )}
         <div

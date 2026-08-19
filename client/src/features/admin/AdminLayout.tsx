@@ -4,7 +4,7 @@ import { Icon, type IconName } from '@/components/ui/Icon'
 import { Button } from '@/components/ui/Button'
 import { LoadingRegion, Skeleton } from '@/components/ui/Skeleton'
 import { useAuth } from '@/lib/auth'
-import { useOccupancy, useSiteSettings } from '@/lib/cms'
+import { useLiveOccupancyFeed, useSiteSettings } from '@/lib/cms'
 import { cn } from '@/lib/utils'
 import { ToastProvider } from './components/overlays'
 import { Pill } from './components/ui'
@@ -38,11 +38,21 @@ const groups: NavGroup[] = [
     ],
   },
   {
+    title: 'Retention',
+    items: [
+      { to: '/admin/churn', label: 'Churn radar', icon: 'flame' },
+      { to: '/admin/plan-studio', label: 'Plan studio', icon: 'barbell' },
+      { to: '/admin/feed', label: 'Community feed', icon: 'trophy' },
+    ],
+  },
+  {
     title: 'Money',
     items: [
       { to: '/admin/billing/plans', label: 'Plans & coupons', icon: 'medal' },
       { to: '/admin/billing/invoices', label: 'Invoices', icon: 'trending-up' },
       { to: '/admin/billing/collections', label: 'Collections', icon: 'clock' },
+      { to: '/admin/offers', label: 'Campaigns', icon: 'star' },
+      { to: '/admin/corporate', label: 'Corporate', icon: 'users' },
     ],
   },
   {
@@ -59,7 +69,8 @@ const groups: NavGroup[] = [
 export function AdminLayout() {
   const { user, logout } = useAuth()
   const { data: settings } = useSiteSettings()
-  const { data: occupancy } = useOccupancy()
+  // The admin watches the whole network on one subscription (Module 4.1).
+  const { occupancy } = useLiveOccupancyFeed('network')
   const [mobileOpen, setMobileOpen] = useState(false)
   const location = useLocation()
 
@@ -71,12 +82,15 @@ export function AdminLayout() {
 
   return (
     <ToastProvider>
-      <div className="theme-light flex min-h-dvh">
+      {/* The shell is exactly one viewport tall and does not scroll. Only the content column
+          does, so a long table never drags the sidebar or the toolbar off the top of the
+          screen — both stay where the owner left them. */}
+      <div className="theme-light flex h-dvh overflow-hidden">
         {/* ---- sidebar ---- */}
         <aside
           className={cn(
-            'fixed inset-y-0 left-0 z-[var(--z-overlay)] flex w-[15.5rem] flex-col border-r border-[var(--hairline)]',
-            'bg-carbon transition-transform duration-300 ease-out lg:static lg:translate-x-0',
+            'fixed inset-y-0 left-0 z-[var(--z-overlay)] flex w-[15.5rem] shrink-0 flex-col border-r border-[var(--hairline)]',
+            'bg-carbon transition-transform duration-300 ease-out lg:static lg:h-full lg:translate-x-0',
             mobileOpen ? 'translate-x-0' : '-translate-x-full',
           )}
         >
@@ -165,8 +179,8 @@ export function AdminLayout() {
         )}
 
         {/* ---- main ---- */}
-        <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-[var(--z-header)] flex h-[4.25rem] shrink-0 items-center gap-3 border-b border-[var(--hairline)] bg-[color-mix(in_srgb,var(--carbon)_92%,transparent)] px-5 backdrop-blur-xl">
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+          <header className="z-[var(--z-header)] flex h-[4.25rem] shrink-0 items-center gap-3 border-b border-[var(--hairline)] bg-[color-mix(in_srgb,var(--carbon)_92%,transparent)] px-5 backdrop-blur-xl">
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
@@ -193,7 +207,7 @@ export function AdminLayout() {
             </Button>
           </header>
 
-          <main className="min-w-0 flex-1 px-5 py-8 lg:px-8">
+          <main className="min-w-0 flex-1 overflow-y-auto px-5 py-8 lg:px-8">
             <Outlet />
           </main>
         </div>

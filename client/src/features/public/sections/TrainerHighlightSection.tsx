@@ -66,7 +66,7 @@ export function TrainerHighlightSection({ content }: { content: TrainerHighlight
                 <h3 className="caption mb-8 flex items-center gap-4">
                   {group.name.replace('FORGE ', '')}
                   <span aria-hidden className="h-px flex-1 bg-[var(--hairline)]" />
-                  <span className="numeric text-smoke/60">{group.trainers.length}</span>
+                  <span className="numeric text-smoke">{group.trainers.length}</span>
                 </h3>
               </Reveal>
             )}

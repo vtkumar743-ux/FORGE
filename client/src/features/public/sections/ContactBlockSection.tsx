@@ -1,9 +1,10 @@
 import { Reveal } from '@/components/ui/Reveal'
 import { Icon, type IconName } from '@/components/ui/Icon'
 import { ButtonLink } from '@/components/ui/Button'
-import { setting, settingFlag, useOccupancy, useSiteSettings } from '@/lib/cms'
+import { setting, settingFlag, useLiveOccupancyFeed, useSiteSettings } from '@/lib/cms'
 import { SectionHeader } from '../components/SectionHeader'
 import { OccupancyMeter } from '../components/OccupancyMeter'
+import { TypicalHours } from '../components/TypicalHours'
 import { useBranchScope } from './context'
 import { whatsappLink } from '@/lib/utils'
 import type { ContactBlockContent } from './schemas'
@@ -21,9 +22,9 @@ export function ContactBlockSection({ content }: { content: ContactBlockContent 
   const branchSlug = useBranchScope()
   const { data: settings } = useSiteSettings()
   const liveEnabled = settingFlag(settings, 'features.liveOccupancy', true) && content.showLiveOccupancy
-  const { data: occupancy } = useOccupancy(liveEnabled)
+  const { occupancy } = useLiveOccupancyFeed(branchSlug ? [branchSlug] : [], liveEnabled && !!branchSlug)
 
-  const branchOccupancy = occupancy?.find((entry) => entry.branchSlug === branchSlug)
+  const branchOccupancy = occupancy.find((entry) => entry.branchSlug === branchSlug)
   const isRowList = Array.isArray(content.rows) && content.rows.length > 0
 
   return (
@@ -113,6 +114,9 @@ export function ContactBlockSection({ content }: { content: ContactBlockContent 
                   <div className="border-t border-[var(--hairline)] pt-8">
                     <p className="caption mb-4">On the floor right now</p>
                     <OccupancyMeter occupancy={branchOccupancy} />
+                    {/* The gauge says "now"; the chart says "when" — together they answer the
+                        whole question someone has before they get in the car. */}
+                    <TypicalHours branchSlug={branchSlug} className="mt-8" enabled={liveEnabled} />
                   </div>
                 )}
               </div>

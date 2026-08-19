@@ -95,7 +95,30 @@ export function prefersReducedMotion(): boolean {
 
 /** Builds a wa.me link with the pre-filled message from site settings. */
 export function whatsappLink(number: string | undefined, message?: string): string {
-  const digits = (number ?? '').replace(/\D/g, '')
   const text = message ? `?text=${encodeURIComponent(message)}` : ''
-  return `https://wa.me/${digits}${text}`
+  return `https://wa.me/${e164Digits(number)}${text}`
+}
+
+/**
+ * Phone numbers reach the client in E.164 (`+919876543210`), but members and leads can also
+ * be keyed in as ten digits. These three helpers are the only places that decide what a
+ * number looks like and where it points, because prefixing "+91" at the call site produced
+ * `+91 +9198…` on screen and a `tel:` link that dialled nothing.
+ */
+function e164Digits(number: string | undefined): string {
+  const digits = (number ?? '').replace(/\D/g, '')
+  if (digits.length === 10) return `91${digits}`
+  return digits
+}
+
+/** Display form: `+91 98765 43210`, grouped the way an Indian number is read aloud. */
+export function formatPhone(number: string | undefined): string {
+  const digits = e164Digits(number)
+  if (digits.length !== 12) return number ?? ''
+  const local = digits.slice(2)
+  return `+91 ${local.slice(0, 5)} ${local.slice(5)}`
+}
+
+export function telLink(number: string | undefined): string {
+  return `tel:+${e164Digits(number)}`
 }

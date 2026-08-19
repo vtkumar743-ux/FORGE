@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/Card'
 import { Icon } from '@/components/ui/Icon'
 import { cn } from '@/lib/utils'
 import type { Trainer } from '@/lib/public-api'
+import { Photo } from '@/components/ui/Photo'
 
 /**
  * Trainer card (03 §7): 3:4 portrait that goes duotone on hover, specialty badges,
@@ -27,13 +28,12 @@ export function TrainerCard({
       <Link to={`/trainers/${trainer.slug}`} className="block focus-visible:outline-offset-4">
         <div className="relative overflow-hidden rounded-[var(--radius-card)] bg-steel">
           {trainer.portraitUrl ? (
-            <img
+            <Photo
               src={trainer.portraitUrl}
               alt={`${trainer.fullName}, ${trainer.headline}`}
-              loading="lazy"
-              decoding="async"
+              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
               className={cn(
-                'graded aspect-[3/4] w-full object-cover',
+                'aspect-[3/4] w-full object-cover',
                 'transition-[transform,filter] duration-[520ms] ease-out',
                 'group-hover:scale-[1.04] motion-reduce:group-hover:scale-100',
                 duotoneOnHover && 'group-hover:[filter:grayscale(1)_contrast(1.25)_sepia(0.4)_hue-rotate(-12deg)_saturate(2.2)_brightness(0.9)]',

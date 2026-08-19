@@ -4,8 +4,8 @@ client/dist/
 client/.vite/
 *.local
 
-# Brand imagery is fetched with `npm run media`, not committed.
-client/public/media/
+# Brand imagery IS committed, so a clone is a working site without waiting on Unsplash and
+# without the renditions having to be rebuilt. `npm run media` refreshes it in place.
 
 # ---- .NET / server ----
 [Bb]in/
@@ -19,6 +19,8 @@ server/Gym.Api/logs/
 
 # Owner-uploaded media is runtime data, not source.
 server/Gym.Api/wwwroot/media/uploads/
+# Members' progress photos — private by construction, and never in version control.
+server/Gym.Api/private-media/
 
 # ---- Secrets ----
 # appsettings.Development.json currently carries only sandbox/dev placeholders. Move real
@@ -32,3 +34,6 @@ server/Gym.Api/wwwroot/media/uploads/
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Screenshots from `npm run audit:admin` — a debugging artefact, not source.
+.audit-shots/

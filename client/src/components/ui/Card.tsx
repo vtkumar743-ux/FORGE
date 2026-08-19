@@ -2,6 +2,7 @@ import { forwardRef, type HTMLAttributes, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { Icon, type IconName } from './Icon'
+import { Photo } from '@/components/ui/Photo'
 
 /* ============================================================================
    Card
@@ -104,14 +105,14 @@ export function CardMedia({
     >
       {src ? (
         <>
-          <img
+          <Photo
             src={src}
             alt={alt}
-            loading={eager ? 'eager' : 'lazy'}
-            decoding="async"
-            fetchPriority={eager ? 'high' : 'auto'}
+            priority={eager}
+            // Cards sit in a 1–3 column grid, so they never need a full-viewport rendition.
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             className={cn(
-              'graded h-full w-full object-cover transition-[transform,opacity] duration-[500ms] ease-out',
+              'h-full w-full object-cover transition-[transform,opacity] duration-[500ms] ease-out',
               'group-hover:scale-[1.04] motion-reduce:group-hover:scale-100',
               hoverSrc && 'group-hover:opacity-0',
             )}

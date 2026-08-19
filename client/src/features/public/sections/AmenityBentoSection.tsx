@@ -3,6 +3,7 @@ import { Icon, isIconName } from '@/components/ui/Icon'
 import { SectionHeader } from '../components/SectionHeader'
 import { cn } from '@/lib/utils'
 import type { AmenityBentoContent } from './schemas'
+import { Photo } from '@/components/ui/Photo'
 
 /**
  * Bento grid (03 §5): mixed 1×1, 2×1, 1×2 and 2×2 tiles so the facility reads as a floor
@@ -48,12 +49,11 @@ export function AmenityBentoSection({ content }: { content: AmenityBentoContent 
                 >
                   {hasImage && (
                     <>
-                      <img
+                      <Photo
                         src={tile.imageUrl}
                         alt={tile.imageAlt ?? ''}
-                        loading="lazy"
-                        decoding="async"
-                        className="graded absolute inset-0 -z-10 h-full w-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05] motion-reduce:group-hover:scale-100"
+                        sizes="(min-width: 1024px) 50vw, 100vw"
+                        className="absolute inset-0 -z-10 h-full w-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.05] motion-reduce:group-hover:scale-100"
                       />
                       <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-t from-ink via-ink/55 to-ink/10" />
                     </>

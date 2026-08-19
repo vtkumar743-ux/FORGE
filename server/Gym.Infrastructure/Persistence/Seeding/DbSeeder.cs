@@ -1,4 +1,4 @@
-using Gym.Core.Entities;
+﻿using Gym.Core.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -74,6 +74,8 @@ public class DbSeeder
         await ActivitySeed.BookingsAsync(_db, members, sessions, today, rng, ct);
         await ActivitySeed.TrainingHistoryAsync(_db, members, exercises, trainers, today, rng, ct);
         await ActivitySeed.CrmAndEngagementAsync(_db, branches, members, plans, today, rng, ct);
+        await ProgramSeed.SeedAsync(_db, members, trainers, today, rng, ct);
+        await CorporateSeed.SeedAsync(_db, branches, today, rng, ct);
 
         await CmsSeed.SeedAsync(_db, branches, today, ct);
 
@@ -96,16 +98,18 @@ public class DbSeeder
             Leads = await _db.Leads.CountAsync(ct),
             CmsPages = await _db.CmsPages.CountAsync(ct),
             CmsSections = await _db.CmsSections.CountAsync(ct),
+            Programs = await _db.WorkoutPrograms.CountAsync(ct),
             Elapsed = DateTime.UtcNow - started
         };
 
         _log.LogInformation(
             "Seed complete in {Elapsed:0.0}s — {Branches} branches, {Trainers} trainers, {Plans} plans, " +
             "{WeeklyClasses} weekly classes ({Sessions} sessions), {Members} members, {Bookings} bookings, " +
-            "{CheckIns} check-ins, {Invoices} invoices, {Leads} leads, {CmsPages} CMS pages / {CmsSections} sections.",
+            "{CheckIns} check-ins, {Invoices} invoices, {Leads} leads, {CmsPages} CMS pages / {CmsSections} sections, " +
+            "{Programs} training programmes.",
             result.Elapsed.TotalSeconds, result.Branches, result.Trainers, result.Plans, result.WeeklyClasses,
             result.Sessions, result.Members, result.Bookings, result.CheckIns, result.Invoices, result.Leads,
-            result.CmsPages, result.CmsSections);
+            result.CmsPages, result.CmsSections, result.Programs);
 
         return result;
     }
@@ -198,5 +202,6 @@ public record SeedResult
     public int Leads { get; init; }
     public int CmsPages { get; init; }
     public int CmsSections { get; init; }
+    public int Programs { get; init; }
     public TimeSpan Elapsed { get; init; }
 }

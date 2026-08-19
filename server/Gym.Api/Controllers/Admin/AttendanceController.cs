@@ -1,8 +1,9 @@
-using Gym.Api.Contracts;
+﻿using Gym.Api.Contracts;
 using Gym.Core.Entities;
 using Gym.Core.Enums;
 using Gym.Core.Interfaces;
 using Gym.Infrastructure.BackgroundJobs;
+using Gym.Infrastructure.Services;
 using Gym.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,15 +28,30 @@ public class AttendanceController : ControllerBase
     private readonly GymDbContext _db;
     private readonly INotificationDispatcher _notifier;
     private readonly IClock _clock;
+    private readonly OccupancyService _occupancy;
+    private readonly IRealtimeNotifier _realtime;
     private readonly ILogger<AttendanceController> _log;
 
     public AttendanceController(
-        GymDbContext db, INotificationDispatcher notifier, IClock clock, ILogger<AttendanceController> log)
+        GymDbContext db, INotificationDispatcher notifier, IClock clock,
+        OccupancyService occupancy, IRealtimeNotifier realtime, ILogger<AttendanceController> log)
     {
         _db = db;
         _notifier = notifier;
         _clock = clock;
+        _occupancy = occupancy;
+        _realtime = realtime;
         _log = log;
+    }
+
+    /// <summary>
+    /// Recomputes and pushes the branch's meter. Every path that changes who is on the floor
+    /// calls this, so the public gauge, the portal home and the dashboard move together.
+    /// </summary>
+    private async Task PushOccupancyAsync(int branchId, CancellationToken ct)
+    {
+        var snapshot = await _occupancy.ForBranchAsync(branchId, ct);
+        if (snapshot is not null) await _realtime.OccupancyChangedAsync(snapshot, ct);
     }
 
     /// <summary>Desk search — code, name or the last digits of a number, all in one box.</summary>
@@ -61,7 +77,8 @@ public class AttendanceController : ControllerBase
 
     [HttpPost("checkin")]
     [ProducesResponseType(typeof(CheckInResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<CheckInResponse>> CheckIn(CheckInRequest request, CancellationToken ct)
+    public async Task<ActionResult<CheckInResponse>> CheckIn(
+        CheckInRequest request, [FromServices] TrainingService training, CancellationToken ct)
     {
         var today = _clock.Today;
         var now = _clock.UtcNow;
@@ -151,15 +168,21 @@ public class AttendanceController : ControllerBase
             _db.CheckIns.Add(row);
         }
 
-        if (admitted && alreadyIn is null)
+        if (admitted)
         {
-            // Streaks: consecutive visit days. A same-day repeat leaves the streak alone.
-            if (member.LastVisitOn is { } last && last == today.AddDays(-1)) member.CurrentStreakDays += 1;
-            else if (member.LastVisitOn != today) member.CurrentStreakDays = 1;
+            if (alreadyIn is null)
+            {
+                // Streaks: consecutive visit days. A same-day repeat leaves the streak alone.
+                if (member.LastVisitOn is { } last && last == today.AddDays(-1)) member.CurrentStreakDays += 1;
+                else if (member.LastVisitOn != today) member.CurrentStreakDays = 1;
 
-            member.LongestStreakDays = Math.Max(member.LongestStreakDays, member.CurrentStreakDays);
-            member.LastVisitOn = today;
+                member.LongestStreakDays = Math.Max(member.LongestStreakDays, member.CurrentStreakDays);
+                member.LastVisitOn = today;
+            }
 
+            // Class attendance is marked even when the visit is already open: a member who
+            // came in for the floor at six and scans again for the seven o'clock class is
+            // one visit and one class, and skipping the second scan loses the roster mark.
             if (request.ClassSessionId is { } sessionId)
             {
                 var booking = await _db.Bookings.FirstOrDefaultAsync(
@@ -176,6 +199,14 @@ public class AttendanceController : ControllerBase
         }
 
         await _db.SaveChangesAsync(ct);
+
+        // A refused scan does not change the head-count, so it does not move the meter.
+        if (admitted && alreadyIn is null)
+        {
+            await PushOccupancyAsync(request.BranchId, ct);
+            // Streak badges and the milestone post ride on the visit that earned them.
+            await training.RecordStreakMilestoneAsync(member.Id, ct);
+        }
 
         // Queried from the session side so the Includes survive — an Include before a Select
         // that reshapes the query is silently dropped, and the mapper would then hit nulls.
@@ -246,6 +277,7 @@ public class AttendanceController : ControllerBase
 
         row.CheckOutAtUtc = _clock.UtcNow;
         await _db.SaveChangesAsync(ct);
+        await PushOccupancyAsync(row.BranchId, ct);
         return Ok(new { minutes = (int)(row.CheckOutAtUtc.Value - row.CheckInAtUtc).TotalMinutes });
     }
 
@@ -259,6 +291,7 @@ public class AttendanceController : ControllerBase
 
         foreach (var row in open) row.CheckOutAtUtc = _clock.UtcNow;
         await _db.SaveChangesAsync(ct);
+        await PushOccupancyAsync(branchId, ct);
         return Ok(new { closed = open.Count });
     }
 
@@ -402,33 +435,42 @@ public class AttendanceController : ControllerBase
         }).ToList());
     }
 
-    /// <summary>Fires the win-back message for one member or a whole selection.</summary>
+    /// <summary>
+    /// Fires the win-back for one member or a whole selection, straight from the absentee
+    /// list. It runs the same <see cref="ChurnService"/> sequence the churn radar uses — one
+    /// implementation, so the fortnight cool-off and the desk call-back task apply wherever
+    /// the button is pressed. No discount unless the desk asks for one: the absentee nudge is
+    /// a message, and money is the radar's lever, not this one's.
+    /// </summary>
     [HttpPost("winback")]
-    public async Task<IActionResult> WinBack([FromBody] WinBackRequest request, CancellationToken ct)
+    public async Task<IActionResult> WinBack(
+        [FromBody] AbsenteeWinBackRequest request, [FromServices] ChurnService churn, CancellationToken ct)
     {
-        var members = await _db.Members.AsNoTracking()
-            .Where(m => request.MemberIds.Contains(m.Id))
-            .Select(m => new { m.Id, m.FullName, m.LastVisitOn })
-            .ToListAsync(ct);
+        if (request.MemberIds.Length == 0) return BadRequest(new ProblemDetails { Title = "Pick at least one member." });
 
-        if (members.Count == 0) return NotFound();
-
-        var sent = await _notifier.SendManyAsync(members.Select(m => new OutboundMessage
+        var options = new WinBackOptions
         {
-            MemberId = m.Id,
-            Kind = NotificationKind.WinBack,
-            Title = "We have missed you",
-            Body = string.IsNullOrWhiteSpace(request.Message)
-                ? $"{m.FullName.Split(' ')[0]}, your last visit was " +
-                  $"{(m.LastVisitOn is null ? "a while ago" : m.LastVisitOn.Value.ToString("dd MMM"))}. " +
-                  "Book a class this week and a coach will meet you on the floor."
-                : request.Message,
-            ActionUrl = "/portal/booking",
-            TemplateKey = "winback.manual",
-            Channels = new[] { NotificationChannel.InApp, NotificationChannel.WhatsApp }
-        }), ct);
+            DiscountPercent = Math.Clamp(request.DiscountPercent ?? 0m, 0m, 60m),
+            OfferValidDays = 14,
+            Message = request.Message,
+            SendWhatsApp = true,
+            SendEmail = false,
+            Force = request.Force
+        };
 
-        return Ok(new { members = members.Count, notifications = sent });
+        var actor = User.Identity?.Name ?? "admin";
+        var sent = 0;
+        var skipped = new List<object>();
+
+        foreach (var memberId in request.MemberIds.Distinct())
+        {
+            var result = await churn.RunWinBackAsync(memberId, options, actor, ct);
+            if (result.Sent) sent++;
+            else skipped.Add(new { memberId, reason = result.Message });
+        }
+
+        if (sent == 0 && skipped.Count == 0) return NotFound();
+        return Ok(new { members = sent, skipped = skipped.Count, details = skipped });
     }
 
     /// <summary>Runs the housekeeping sweep now — used by the "refresh operations" action.</summary>
@@ -441,9 +483,13 @@ public class AttendanceController : ControllerBase
     }
 }
 
-public record WinBackRequest
+public record AbsenteeWinBackRequest
 {
     public int[] MemberIds { get; init; } = Array.Empty<int>();
-    /// <summary>Blank uses the default copy, which names the member and their last visit.</summary>
+    /// <summary>Blank uses the default copy, which names the member and their branch.</summary>
     public string? Message { get; init; }
+    /// <summary>Optional — attaches a personal coupon through the same offer engine the radar uses.</summary>
+    public decimal? DiscountPercent { get; init; }
+    /// <summary>Overrides the fortnight cool-off between win-backs.</summary>
+    public bool Force { get; init; }
 }

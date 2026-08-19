@@ -187,7 +187,6 @@ public class SubscriptionService
             throw new InvalidOperationException(
                 $"This plan allows {allowance} freeze days and {subscription.FreezeDaysUsed} are already used.");
 
-        subscription.Status = SubscriptionStatus.Frozen;
         subscription.FreezeStartsOn = from;
         subscription.FreezeEndsOn = to;
         subscription.FreezeDaysUsed += days;
@@ -195,8 +194,15 @@ public class SubscriptionService
         subscription.EndsOn = subscription.EndsOn.AddDays(days);
         subscription.UpdatedBy = actor;
 
-        var member = await _db.Members.FirstAsync(m => m.Id == subscription.MemberId, ct);
-        member.Status = MemberStatus.Frozen;
+        // A freeze booked for next month must not lock the member out this afternoon. The
+        // window is recorded now and the operations sweep flips the status on the day it
+        // opens — which is also what closes it again when it ends.
+        if (from <= _clock.Today)
+        {
+            subscription.Status = SubscriptionStatus.Frozen;
+            var member = await _db.Members.FirstAsync(m => m.Id == subscription.MemberId, ct);
+            member.Status = MemberStatus.Frozen;
+        }
 
         await _db.SaveChangesAsync(ct);
         return subscription;

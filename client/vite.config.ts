@@ -13,6 +13,21 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  // The same proxy for `vite preview`, so a production-build smoke test (and a Lighthouse
+  // run against it) sees real API content rather than an empty shell.
+  preview: {
+    port: 4173,
+    strictPort: true,
+    proxy: {
+      '/api': { target: apiTarget, changeOrigin: true },
+      '/media/uploads': { target: apiTarget, changeOrigin: true },
+      '/hubs': { target: apiTarget, changeOrigin: true, ws: true },
+      // Generated from the CMS by the API, so a page the owner adds enters the index
+      // without a deploy. Proxied here too, or a preview build serves the SPA shell for them.
+      '/robots.txt': { target: apiTarget, changeOrigin: true },
+      '/sitemap.xml': { target: apiTarget, changeOrigin: true },
+    },
+  },
   server: {
     port: 5173,
     strictPort: true,
@@ -25,6 +40,8 @@ export default defineConfig({
       // /media/uploads rather than all of /media.
       '/media/uploads': { target: apiTarget, changeOrigin: true },
       '/hubs': { target: apiTarget, changeOrigin: true, ws: true },
+      '/robots.txt': { target: apiTarget, changeOrigin: true },
+      '/sitemap.xml': { target: apiTarget, changeOrigin: true },
     },
   },
   build: {

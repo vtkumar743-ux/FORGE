@@ -26,19 +26,36 @@ public class PaymentsController : ControllerBase
 {
     private readonly GymDbContext _db;
     private readonly IPaymentGateway _gateway;
+    private readonly PaymentOrderService _orders;
     private readonly INotificationDispatcher _notifier;
     private readonly IClock _clock;
     private readonly ILogger<PaymentsController> _log;
 
     public PaymentsController(
-        GymDbContext db, IPaymentGateway gateway, INotificationDispatcher notifier,
-        IClock clock, ILogger<PaymentsController> log)
+        GymDbContext db, IPaymentGateway gateway, PaymentOrderService orders,
+        INotificationDispatcher notifier, IClock clock, ILogger<PaymentsController> log)
     {
         _db = db;
         _gateway = gateway;
+        _orders = orders;
         _notifier = notifier;
         _clock = clock;
         _log = log;
+    }
+
+    /// <summary>
+    /// A member may only transact against their own invoice; an admin may transact against any.
+    /// Returns the failure to send, or null when the caller is entitled to this invoice.
+    /// </summary>
+    private ActionResult? RefuseIfNotOwn(Invoice invoice)
+    {
+        if (User.IsInRole(RoleNames.Admin)) return null;
+
+        var claim = User.FindFirst(GymClaims.MemberId)?.Value;
+        if (int.TryParse(claim, out var memberId) && memberId == invoice.MemberId) return null;
+
+        // Not 403: telling a stranger "that invoice exists but is not yours" is itself a leak.
+        return NotFound();
     }
 
     /// <summary>Tells the client whether checkout can be offered and with which public key.</summary>
@@ -55,62 +72,30 @@ public class PaymentsController : ControllerBase
     });
 
     [HttpPost("razorpay/order")]
-    [Authorize(Roles = RoleNames.Admin)]
+    [Authorize]
     [ProducesResponseType(typeof(CreateOrderResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<CreateOrderResponse>> CreateOrder(CreateOrderRequest request, CancellationToken ct)
     {
         var invoice = await _db.Invoices.Include(i => i.Member)
             .FirstOrDefaultAsync(i => i.Id == request.InvoiceId, ct);
         if (invoice is null) return NotFound();
+        if (RefuseIfNotOwn(invoice) is { } refusal) return refusal;
 
-        if (invoice.AmountDue <= 0)
-            return Problem("Nothing is outstanding on that invoice.", statusCode: StatusCodes.Status400BadRequest);
-
-        var amount = request.Amount is { } requested && requested > 0
-            ? Math.Min(requested, invoice.AmountDue)
-            : invoice.AmountDue;
-
-        GatewayOrder order;
+        PaymentOrderService.OpenedOrder opened;
         try
         {
-            order = await _gateway.CreateOrderAsync(
-                amount,
-                receipt: invoice.InvoiceNumber.Replace('/', '-'),
-                notes: new Dictionary<string, string>
-                {
-                    ["invoiceId"] = invoice.Id.ToString(),
-                    ["invoiceNumber"] = invoice.InvoiceNumber,
-                    ["memberCode"] = invoice.Member.MemberCode
-                },
-                ct);
+            opened = await _orders.OpenAsync(invoice.Id, request.Amount, User.Identity?.Name, ct);
         }
         catch (InvalidOperationException ex)
         {
-            return Problem(ex.Message, statusCode: StatusCodes.Status503ServiceUnavailable);
+            // A closed invoice is the caller's mistake; an unconfigured gateway is ours.
+            var status = ex.Message.Contains("outstanding", StringComparison.OrdinalIgnoreCase)
+                ? StatusCodes.Status400BadRequest
+                : StatusCodes.Status503ServiceUnavailable;
+            return Problem(ex.Message, statusCode: status);
         }
 
-        var key = $"rzp-{order.OrderId}";
-        var pending = await _db.Payments.FirstOrDefaultAsync(p => p.IdempotencyKey == key, ct);
-        if (pending is null)
-        {
-            _db.Payments.Add(new Payment
-            {
-                InvoiceId = invoice.Id,
-                MemberId = invoice.MemberId,
-                BranchId = invoice.BranchId,
-                Amount = amount,
-                Mode = PaymentMode.RazorpayLink,
-                Status = PaymentStatus.Pending,
-                PaidAtUtc = _clock.UtcNow,
-                GatewayName = order.IsSimulated ? "razorpay-sandbox-simulator" : "razorpay",
-                GatewayOrderId = order.OrderId,
-                IdempotencyKey = key,
-                ReceivedBy = User.Identity?.Name,
-                Notes = order.IsSimulated ? "Simulated order — no Razorpay key configured." : null
-            });
-            await _db.SaveChangesAsync(ct);
-        }
-
+        var order = opened.Order;
         return Ok(new CreateOrderResponse
         {
             OrderId = order.OrderId,
@@ -134,9 +119,16 @@ public class PaymentsController : ControllerBase
     /// production, but the desk should not have to wait for it before printing a receipt.
     /// </summary>
     [HttpPost("razorpay/verify")]
-    [Authorize(Roles = RoleNames.Admin)]
+    [Authorize]
     public async Task<IActionResult> Verify(VerifyPaymentRequest request, CancellationToken ct)
     {
+        var pending = await _db.Payments
+            .Include(p => p.Invoice)
+            .FirstOrDefaultAsync(p => p.GatewayOrderId == request.RazorpayOrderId, ct);
+        if (pending is null)
+            return NotFound(new ProblemDetails { Title = "Unknown order", Detail = "No invoice is waiting on that order id." });
+        if (RefuseIfNotOwn(pending.Invoice) is { } refusal) return refusal;
+
         var verification = _gateway.VerifyCheckoutSignature(
             request.RazorpayOrderId, request.RazorpayPaymentId, request.RazorpaySignature ?? string.Empty);
 

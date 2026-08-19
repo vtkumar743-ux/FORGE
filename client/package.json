@@ -8,10 +8,15 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "media": "node scripts/fetch-media.mjs",
-    "media:force": "node scripts/fetch-media.mjs --force"
+    "media": "node scripts/fetch-media.mjs && node scripts/optimise-media.mjs",
+    "media:force": "node scripts/fetch-media.mjs --force",
+    "icons": "node scripts/make-icons.mjs",
+    "a11y": "node scripts/contrast-audit.mjs",
+    "media:optimise": "node scripts/optimise-media.mjs",
+    "audit:admin": "node scripts/audit-admin.mjs"
   },
   "dependencies": {
+    "@microsoft/signalr": "^10.0.11",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/react-query": "^5.101.4",
     "axios": "^1.19.0",
@@ -32,6 +37,8 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
     "oxlint": "^1.75.0",
+    "puppeteer-core": "^25.8.0",
+    "sharp": "^0.35.3",
     "typescript": "~6.0.2",
     "vite": "^8.2.0"
   }

@@ -223,7 +223,7 @@ export function LeadFormSection({ content }: { content: LeadFormContent }) {
                 <div key={field.name}>
                   <label htmlFor={id} className="caption mb-2.5 block text-[0.625rem]">
                     {field.label}
-                    {!field.required && <span className="ml-2 normal-case tracking-normal text-smoke/60">optional</span>}
+                    {!field.required && <span className="ml-2 normal-case tracking-normal text-smoke">optional</span>}
                   </label>
 
                   {field.type === 'textarea' ? (
@@ -274,7 +274,7 @@ export function LeadFormSection({ content }: { content: LeadFormContent }) {
                   )}
 
                   {field.help && !error && (
-                    <p id={`${id}-help`} className="mt-2 text-[0.75rem] text-smoke/70">
+                    <p id={`${id}-help`} className="mt-2 text-[0.75rem] text-smoke">
                       {field.help}
                     </p>
                   )}

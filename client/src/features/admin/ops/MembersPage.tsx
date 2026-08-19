@@ -12,6 +12,7 @@ import {
 import { describeErrorText, formatInr, formatIsoDate } from '../lib/format'
 import { genderNames, memberStatusNames, type MemberListRow } from '../lib/types'
 import { Drawer, useToast } from '../components/overlays'
+import { formatPhone } from '@/lib/utils'
 import {
   Avatar,
   DataTable,
@@ -257,7 +258,7 @@ export function MembersPage() {
                   <div className="min-w-0">
                     <p className="truncate font-medium">{row.fullName}</p>
                     <p className="numeric truncate text-[0.75rem] text-smoke">
-                      {row.memberCode} · {row.phone}
+                      {row.memberCode} · {formatPhone(row.phone)}
                     </p>
                   </div>
                 </Link>
